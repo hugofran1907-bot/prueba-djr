@@ -18,7 +18,7 @@ export function Logo({ className, asLink = true }: { className?: string; asLink?
         alt={asLink ? "" : "DJR"}
         width={logo.width}
         height={logo.height}
-        // SVG: se sirve tal cual (sin pasar por el optimizador de imágenes).
+        // Se sirve tal cual (SVG o PNG ligero): el mismo archivo vale para la cabecera y para la firma del pie.
         unoptimized
         priority={asLink}
         className="h-[0.9em] w-auto"

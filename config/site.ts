@@ -16,7 +16,11 @@ export const siteConfig = {
    * proporción, por ejemplo: { src: "/images/marca/logo.svg", width: 120, height: 90 }.
    * Aparece en la cabecera, el menú móvil y la firma grande del pie.
    */
-  logo: null as { src: string; width: number; height: number } | null,
+  logo: { src: "/images/marca/logo-djr.png", width: 2128, height: 1789 } as {
+    src: string;
+    width: number;
+    height: number;
+  } | null,
 
   description:
     "DJR® es una marca de streetwear minimalista: camisetas, sudaderas y pantalones de líneas limpias, pensados para la ciudad.",
