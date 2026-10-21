@@ -1,0 +1,331 @@
+@import "tailwindcss";
+
+/* ───────────────────────── Tokens de marca DJR® · tema oscuro ─────────────────────────
+   Los nombres son históricos y ahora describen un PAPEL, no un color:
+   white = lienzo (negro), navy = tinta (blanco roto), cream = panel (carbón),
+   burgundy = acento (gris claro), night = secciones más profundas (pie, avisos). */
+@theme {
+  --color-night: #000000; /* barra de avisos, pie, menú móvil */
+  --color-white: #0a0a0a; /* lienzo de la página */
+  --color-cream: #141414; /* paneles: hero, newsletter, fondos de foto */
+  --color-cream-deep: #1c1c1c; /* paneles elevados y esqueletos de carga */
+  --color-navy: #f5f5f5; /* tinta principal y rellenos de botón */
+  --color-navy-soft: #d4d4d4;
+  --color-ink: #ededed;
+  --color-burgundy: #c8c8c8; /* acento gris claro */
+  --color-burgundy-deep: #9e9e9e;
+  --color-stone: #a3a3a3; /* texto secundario · contraste AA sobre negro y carbón */
+  --color-pewter: #6b6b6b; /* tallas agotadas y trazos secundarios */
+
+  /* Esquinas de imagen de catálogo (estilo lookbook VISIONNAIRE). */
+  --radius-media: 0.875rem;
+
+  --font-serif: var(--font-instrument-serif), "Times New Roman", serif;
+  --font-sans: var(--font-inter-tight), ui-sans-serif, system-ui, sans-serif;
+
+  --text-display: clamp(3.25rem, 11vw, 10.5rem);
+  --text-display--line-height: 0.88;
+  --text-headline: clamp(2.25rem, 6vw, 5rem);
+  --text-headline--line-height: 0.95;
+
+  --ease-editorial: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Curvas de interfaz: entradas y salidas (ease-out fuerte) y paneles laterales tipo iOS. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --animate-rise: rise 1.1s var(--ease-editorial) both;
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(1.5rem); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Asentamiento lento de la foto del hero. */
+  @keyframes settle {
+    from { transform: scale(1.06); }
+    to { transform: scale(1); }
+  }
+
+  /* Entrada suave de cada página al navegar (app/template.tsx). */
+  --animate-page-in: page-in 0.6s var(--ease-editorial) both;
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(0.75rem); }
+    to { opacity: 1; transform: none; }
+  }
+
+  --animate-marquee: marquee 38s linear infinite;
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+}
+
+/* ─────────────────────────────── Base ─────────────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 8rem; /* cabecera + barra de anuncios */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Lienzo blanco; el crema queda para los bloques de color (hero, newsletter). */
+  body {
+    background-color: var(--color-white);
+    color: var(--color-navy);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Bloquea el scroll del fondo mientras un <dialog> modal está abierto. */
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+
+  ::selection {
+    background-color: var(--color-navy);
+    color: var(--color-white);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-navy);
+    outline-offset: 3px;
+  }
+
+  /* Paneles claros (p. ej. el banner promocional): contorno oscuro. */
+  .on-light :focus-visible {
+    outline-color: var(--color-white);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ───────── Revelado al hacer scroll (components/ui/RevealObserver.tsx) ─────────
+     Solo se oculta nada cuando el observador está activo (.reveal-ready) y el
+     usuario no ha pedido menos movimiento: sin JS o con movimiento reducido,
+     todo el contenido se ve desde el principio. Solo opacidad y transform. */
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal-ready [data-reveal],
+    .reveal-ready [data-reveal-stagger] > * {
+      transition:
+        opacity 0.9s var(--ease-editorial),
+        transform 0.9s var(--ease-editorial);
+    }
+    .reveal-ready [data-reveal]:not([data-revealed]),
+    .reveal-ready [data-reveal-stagger]:not([data-revealed]) > * {
+      opacity: 0;
+      transform: translateY(1.5rem);
+    }
+    /* Escalonado: 70 ms entre hijos, hasta 8. */
+    .reveal-ready [data-reveal-stagger] > :nth-child(2) { transition-delay: 70ms; }
+    .reveal-ready [data-reveal-stagger] > :nth-child(3) { transition-delay: 140ms; }
+    .reveal-ready [data-reveal-stagger] > :nth-child(4) { transition-delay: 210ms; }
+    .reveal-ready [data-reveal-stagger] > :nth-child(5) { transition-delay: 280ms; }
+    .reveal-ready [data-reveal-stagger] > :nth-child(6) { transition-delay: 350ms; }
+    .reveal-ready [data-reveal-stagger] > :nth-child(7) { transition-delay: 420ms; }
+    .reveal-ready [data-reveal-stagger] > :nth-child(n + 8) { transition-delay: 490ms; }
+  }
+}
+
+/* ─────────────────────────── Utilidades propias ─────────────────────────── */
+
+/* Tratamiento fotográfico editorial: unifica las imágenes con la paleta. */
+@utility photo-mono {
+  filter: grayscale(1) contrast(1.06) brightness(0.97);
+}
+
+/* Etiqueta editorial pequeña en versalitas espaciadas. */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.75rem; /* 12px: mínimo legible para etiquetas */
+  font-weight: 500;
+  letter-spacing: 0.1em; /* DESIGN.md: cuanto menor el texto, más tracking (máx. 0.10em) */
+  text-transform: uppercase;
+}
+
+/* Contenedor con márgenes generosos. */
+@utility container-editorial {
+  width: 100%;
+  margin-inline: auto;
+  max-width: 87.5rem; /* 1400px, ancho máximo de DESIGN.md */
+  padding-inline: 1.25rem;
+  @media (width >= 48rem) {
+    padding-inline: 2.5rem;
+  }
+  @media (width >= 80rem) {
+    padding-inline: 4rem;
+  }
+}
+
+/* Botón de WhatsApp: abajo a la derecha; en móvil/tablet sube por encima
+   de la barra fija de compra cuando está visible. */
+.whatsapp-fab {
+  bottom: max(1rem, env(safe-area-inset-bottom));
+}
+@media (width < 64rem) {
+  body:has([data-sticky-buy][data-visible="true"]) .whatsapp-fab {
+    bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+  /* Reserva espacio para que la barra fija no tape el final del pie. */
+  body:has([data-sticky-buy]) {
+    padding-bottom: calc(4.75rem + env(safe-area-inset-bottom));
+  }
+}
+@media (width >= 48rem) {
+  .whatsapp-fab {
+    bottom: 1.5rem;
+  }
+}
+
+/* Subrayado animado para enlaces de texto. */
+@utility link-underline {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  transition: background-size 0.4s var(--ease-editorial);
+  &:hover,
+  &:focus-visible {
+    background-size: 100% 1px;
+  }
+}
+
+/* ───────────────────────────── Movimiento de la interfaz ─────────────────────────────
+   Solo transform y opacity (más la altura del acordeón). Entradas con @starting-style y
+   salidas con transition-behavior: allow-discrete; donde el navegador no lo soporta,
+   todo se abre y cierra al instante, como antes. Con movimiento reducido, la regla global
+   de @layer base deja las duraciones casi a cero. */
+@layer components {
+  /* Diálogos nativos (<dialog data-anim>): estado de entrada = estado de salida. */
+  dialog[data-anim] {
+    transition:
+      opacity 300ms var(--ease-out),
+      transform 400ms var(--ease-drawer),
+      overlay 400ms allow-discrete,
+      display 400ms allow-discrete;
+  }
+  dialog[data-anim]::backdrop {
+    transition:
+      opacity 300ms var(--ease-out),
+      overlay 300ms allow-discrete,
+      display 300ms allow-discrete;
+  }
+  dialog[data-anim]:not([open]),
+  dialog[data-anim]:not([open])::backdrop {
+    opacity: 0;
+  }
+  @starting-style {
+    dialog[data-anim][open],
+    dialog[data-anim][open]::backdrop {
+      opacity: 0;
+    }
+  }
+
+  /* Carrito: entra y sale por la derecha. */
+  dialog[data-anim="drawer"]:not([open]) {
+    transform: translateX(100%);
+  }
+  @starting-style {
+    dialog[data-anim="drawer"][open] {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Búsqueda: baja desde arriba. */
+  dialog[data-anim="sheet"] {
+    transition-duration: 300ms;
+  }
+  dialog[data-anim="sheet"]:not([open]) {
+    transform: translateY(-100%);
+  }
+  @starting-style {
+    dialog[data-anim="sheet"][open] {
+      transform: translateY(-100%);
+    }
+  }
+
+  /* Guía de tallas: modal centrado que crece un poco (nunca desde scale 0). */
+  dialog[data-anim="modal"] {
+    transition-duration: 200ms;
+    transition-timing-function: var(--ease-out);
+  }
+  dialog[data-anim="modal"]:not([open]) {
+    transform: scale(0.96);
+  }
+  @starting-style {
+    dialog[data-anim="modal"][open] {
+      transform: scale(0.96);
+    }
+  }
+
+  /* Menú móvil: fundido y las opciones entran escalonadas (40 ms). */
+  dialog[data-anim="menu"] {
+    transition-duration: 250ms;
+  }
+  dialog[data-anim="menu"] li {
+    transition:
+      opacity 400ms var(--ease-out),
+      transform 400ms var(--ease-out);
+  }
+  @starting-style {
+    dialog[data-anim="menu"][open] li {
+      opacity: 0;
+      transform: translateY(0.75rem);
+    }
+  }
+  dialog[data-anim="menu"] li:nth-child(2) { transition-delay: 40ms; }
+  dialog[data-anim="menu"] li:nth-child(3) { transition-delay: 80ms; }
+  dialog[data-anim="menu"] li:nth-child(4) { transition-delay: 120ms; }
+  dialog[data-anim="menu"] li:nth-child(5) { transition-delay: 160ms; }
+  dialog[data-anim="menu"] li:nth-child(n + 6) { transition-delay: 200ms; }
+
+  /* Acordeón (<details data-anim>): la respuesta se despliega en vez de aparecer de golpe. */
+  details[data-anim] {
+    interpolate-size: allow-keywords;
+  }
+  details[data-anim]::details-content {
+    block-size: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition:
+      block-size 300ms var(--ease-out),
+      opacity 300ms var(--ease-out),
+      content-visibility 300ms allow-discrete;
+  }
+  details[data-anim][open]::details-content {
+    block-size: auto;
+    opacity: 1;
+  }
+
+  /* Contenido que aparece (paneles con `hidden`, mensajes de éxito): fundido y leve subida. */
+  [data-enter] {
+    transition:
+      opacity 300ms var(--ease-out),
+      transform 300ms var(--ease-out);
+  }
+  @starting-style {
+    [data-enter] {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+  }
+
+  /* Contador del carrito: pequeño «pop» cada vez que cambia (se vuelve a montar con key). */
+  [data-pop] {
+    transition:
+      opacity 300ms var(--ease-out),
+      transform 300ms var(--ease-out);
+  }
+  @starting-style {
+    [data-pop] {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+  }
+}
