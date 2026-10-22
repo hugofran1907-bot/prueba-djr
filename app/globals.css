@@ -393,6 +393,9 @@
   @supports ((-webkit-background-clip: text) or (background-clip: text)) {
     .kinetic-image {
       color: transparent;
+      /* Velo claro encima de la foto: las prendas negras dejaban letras negras sobre el fondo
+         negro y en móvil la palabra parecía cortada. Así siempre se lee, con la foto de textura. */
+      background-image: linear-gradient(rgb(255 255 255 / 0.45), rgb(255 255 255 / 0.45)), var(--kinetic-image);
       background-size: 60vw auto;
       background-repeat: repeat-x;
       background-position: 50% 30%;

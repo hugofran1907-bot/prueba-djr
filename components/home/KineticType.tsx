@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, type CSSProperties } from "react";
 import { LogoStar } from "@/components/ui/LogoStar";
 import { MEDIA, gsap, useGSAP } from "@/lib/motion";
 
@@ -58,7 +58,7 @@ export function KineticType({ image }: { image: string }) {
         aria-hidden="true"
         data-kinetic="b"
         className="kinetic-row kinetic-image -mt-[0.08em]"
-        style={{ backgroundImage: `url(${image})` }}
+        style={{ "--kinetic-image": `url(${image})` } as CSSProperties}
       >
         {row(ROW_B)}
       </p>
