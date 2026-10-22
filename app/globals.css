@@ -441,7 +441,10 @@
     gap: 4rem;
     pointer-events: none;
   }
-  .story.is-pinned .story-text {
+  /* Las tres escenas están apiladas: solo los enlaces reciben clics, no la caja de texto entera.
+     Si no, la caja (invisible) de la última escena tapa los botones de las anteriores. Los enlaces
+     de las escenas ocultas no se pueden pulsar: están con visibility:hidden o fuera de su máscara. */
+  .story.is-pinned .story-text a {
     pointer-events: auto;
   }
   .story.is-pinned .story-media {

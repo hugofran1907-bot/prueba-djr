@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/lib/types";
-import { Morph } from "@/components/product/Morph";
+import { Morph, OPEN_PRODUCT } from "@/components/product/Morph";
 import { productMorphName } from "@/lib/utils";
 import { Price } from "@/components/product/Price";
 import { cn } from "@/lib/utils";
@@ -88,7 +88,11 @@ export function ProductCard({
       <div className="mt-4 text-center">
         <h3 className="text-xs font-medium tracking-[0.047em] uppercase">
           {/* El enlace cubre toda la tarjeta, pero solo hay un punto de foco. */}
-          <Link href={`/productos/${product.handle}`} className="after:absolute after:inset-0">
+          <Link
+            href={`/productos/${product.handle}`}
+            transitionTypes={[OPEN_PRODUCT]}
+            className="after:absolute after:inset-0"
+          >
             {product.title}
           </Link>
         </h3>

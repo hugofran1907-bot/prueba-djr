@@ -27,22 +27,23 @@ export const siteConfig = {
   locale: "es_ES",
 
   mainNav: [
-    { label: "Novedades", href: "/#novedades" },
+    { label: "Novedades", href: "/novedades" },
     { label: "Camisetas", href: "/colecciones/camisetas" },
     { label: "Sudaderas", href: "/colecciones/sudaderas" },
     { label: "Pantalones", href: "/colecciones/pantalones" },
-    { label: "Marca", href: "/#marca" },
+    { label: "Marca", href: "/marca" },
   ],
 
   footerNav: {
     shop: [
       { label: "Toda la colección", href: "/colecciones/todo" },
-      { label: "Novedades", href: "/#novedades" },
+      { label: "Novedades", href: "/novedades" },
       { label: "Camisetas", href: "/colecciones/camisetas" },
       { label: "Sudaderas", href: "/colecciones/sudaderas" },
       { label: "Pantalones", href: "/colecciones/pantalones" },
     ],
     help: [
+      { label: "La marca", href: "/marca" },
       { label: "Preguntas frecuentes", href: "/faq" },
       { label: "Envíos y devoluciones", href: "/legal/envios-y-devoluciones" },
       { label: "Contacto", href: "/legal/contacto" },
@@ -86,7 +87,7 @@ export const heroContent = {
   text: "Streetwear de líneas limpias, hecho para moverse por la ciudad sin pedir permiso.",
   valueProp: hero.valueProp,
   cta: { label: "Comprar la Colección 01", href: "/colecciones/todo" },
-  secondaryCta: { label: "Novedades", href: "/#novedades" },
+  secondaryCta: { label: "Novedades", href: "/novedades" },
   image: {
     url: "/images/portada/portada-negro-original.webp",
     alt: "Chico y chica con camiseta negra DJR y pantalón negro de pierna ancha, apoyados en una pared negra",

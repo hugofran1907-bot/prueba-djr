@@ -9,6 +9,7 @@ import { CartDrawer } from "@/components/cart/CartDrawer";
 import { RevealObserver } from "@/components/ui/RevealObserver";
 import { BrandMotion } from "@/components/ui/BrandMotion";
 import { LiquidReveals } from "@/components/ui/LiquidReveals";
+import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { siteUrl } from "@/lib/utils";
 import "./globals.css";
 
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <RevealObserver />
           <BrandMotion />
           <LiquidReveals />
+          <ScrollToTop />
         </CartProvider>
       </body>
     </html>

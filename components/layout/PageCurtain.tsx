@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo } from "@/components/layout/Logo";
+import { getPendingCurtainLabel, setPendingCurtainLabel } from "@/lib/curtain-label";
 
 /**
  * true en cuanto la primera página se ha hidratado: a partir de ahí, cada montaje es una
@@ -37,14 +38,17 @@ function labelFor(pathname: string) {
  * primera carga ni al abrir un producto (ahí la foto viaja con View Transitions).
  * Es puro CSS, no bloquea clics y, con movimiento reducido, no se muestra (globals.css).
  */
-export function PageCurtain() {
+export function PageCurtain({ label: labelProp, force = false }: { label?: string | null; force?: boolean }) {
   const pathname = usePathname();
   // Se lee una sola vez al montar: en la hidratación vale false (igual que en el servidor).
-  const [show] = useState(() => hydrated && !pathname.startsWith("/productos/"));
-  const [label] = useState(() => labelFor(pathname));
+  // `force`: telón repetido a propósito sin cambiar de página (enlace a una sección de la misma).
+  const [show] = useState(() => force || (hydrated && !pathname.startsWith("/productos/")));
+  // Enlace a una sección (/#novedades): el título pendiente manda sobre el de la ruta.
+  const [label] = useState(() => labelProp ?? getPendingCurtainLabel() ?? labelFor(pathname));
 
   useEffect(() => {
     hydrated = true;
+    setPendingCurtainLabel(null); // se consume una vez (en el efecto, no en el inicializador: StrictMode lo llama dos veces)
   }, []);
 
   if (!show) return null;

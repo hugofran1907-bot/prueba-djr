@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { Star } from "@/components/ui/Star";
+import { LogoStar } from "@/components/ui/LogoStar";
 import { MEDIA, gsap, useGSAP } from "@/lib/motion";
 
 const ROW_A = ["Menos ruido", "Más presencia"];
@@ -43,13 +43,14 @@ export function KineticType({ image }: { image: string }) {
       words.map((word, i) => (
         <span key={`${r}-${i}`} className="inline-flex items-center">
           {word}
-          <Star className="mx-[0.25em] inline-block size-[0.32em] shrink-0" />
+          <LogoStar className="mx-[0.25em] h-[0.42em]" />
         </span>
       )),
     );
 
   return (
-    <section ref={root} aria-label="DJR® Streetwear. Menos ruido, más presencia." className="overflow-hidden bg-night py-16 md:py-28">
+    // select-none: son letras decorativas, no texto para seleccionar (el lector de pantalla usa aria-label).
+    <section ref={root} aria-label="DJR® Streetwear. Menos ruido, más presencia." className="overflow-hidden bg-night py-16 select-none md:py-28">
       <p aria-hidden="true" data-kinetic="a" className="kinetic-row kinetic-outline">
         {row(ROW_A)}
       </p>
