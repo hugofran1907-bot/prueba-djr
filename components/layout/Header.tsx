@@ -115,6 +115,8 @@ export function Header() {
             </button>
             <button
               type="button"
+              // Destino del vuelo al carrito (lib/fly-to-cart.ts): ahí aterriza la foto y rebota.
+              data-cart-target
               className={cn(iconButton, "relative")}
               aria-label={count > 0 ? `Abrir carrito, ${count} ${count === 1 ? "artículo" : "artículos"}` : "Abrir carrito"}
               aria-haspopup="dialog"

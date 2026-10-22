@@ -73,7 +73,9 @@ function ZoomImage({ image, priority }: { image: Image; priority: boolean }) {
         src={image.url}
         alt={image.altText}
         fill
-        priority={priority}
+        // Next 16: «priority» está obsoleto; con dos fotos candidatas a LCP (móvil/escritorio), eager.
+        loading={priority ? "eager" : undefined}
+        fetchPriority={priority ? "high" : undefined}
         sizes={SIZES}
         style={origin ? { transformOrigin: origin } : undefined}
         className={cn(
@@ -139,13 +141,14 @@ export function ProductGallery({
           {media.map((m, i) => (
             <Morph key={i} name={i === 0 && !isDesktop ? morphName : undefined}>
               <div
+                data-fly-source
                 className="relative aspect-[4/5] w-full shrink-0 snap-center bg-cream-deep"
                 role={multiple ? "group" : undefined}
                 aria-roledescription={multiple ? "diapositiva" : undefined}
                 aria-label={multiple ? `${i + 1} de ${media.length}` : undefined}
               >
                 {m.type === "image" ? (
-                  <NextImage src={m.image.url} alt={m.image.altText} fill priority={i === 0} sizes={SIZES} className="object-cover" />
+                  <NextImage src={m.image.url} alt={m.image.altText} fill loading={i === 0 ? "eager" : undefined} fetchPriority={i === 0 ? "high" : undefined} sizes={SIZES} className="object-cover" />
                 ) : (
                   <LoopVideo video={m.video} label={videoLabel} />
                 )}
@@ -209,7 +212,8 @@ export function ProductGallery({
         )}
 
         <Morph name={active === 0 && isDesktop ? morphName : undefined}>
-        <div className="relative aspect-[4/5] bg-cream-deep">
+        {/* data-fly-source: de aquí sale la foto que vuela al carrito (lib/fly-to-cart.ts). */}
+        <div data-fly-source className="relative aspect-[4/5] bg-cream-deep">
           {(() => {
             const m = media[Math.min(active, media.length - 1)];
             return m.type === "image" ? (

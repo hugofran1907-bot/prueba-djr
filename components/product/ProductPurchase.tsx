@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { CART_ENABLED, colorSwatches, trustLines } from "@/config/store";
 import { notifyWhenAvailable } from "@/lib/actions";
 import type { Product, ProductOption, ProductVariant } from "@/lib/types";
 import { cn, formatPrice } from "@/lib/utils";
+import { flyToCart } from "@/lib/fly-to-cart";
+import { Star } from "@/components/ui/Star";
 import { useCart } from "@/components/cart/CartContext";
 import { EmailForm } from "@/components/ui/EmailForm";
 import { SizeGuide } from "@/components/product/SizeGuide";
@@ -131,7 +133,8 @@ export function ProductPurchase({ product, children }: { product: Product; child
   const [color, setColor] = useState<string | null>(firstAvailableColor);
   const [size, setSize] = useState<string | null>(null);
   const [notifyOpen, setNotifyOpen] = useState(false);
-  const [added, setAdded] = useState(false);
+  /** Momento del último «añadir» (null = sin aviso). Cambia en cada pulsación para reiniciar el aviso. */
+  const [addedAt, setAddedAt] = useState<number | null>(null);
   const [stickyVisible, setStickyVisible] = useState(false);
 
   const mainButtonRef = useRef<HTMLDivElement>(null);
@@ -184,10 +187,10 @@ export function ProductPurchase({ product, children }: { product: Product; child
   }, []);
 
   useEffect(() => {
-    if (!added) return;
-    const t = window.setTimeout(() => setAdded(false), 4000);
+    if (addedAt === null) return;
+    const t = window.setTimeout(() => setAddedAt(null), 4500);
     return () => window.clearTimeout(t);
-  }, [added]);
+  }, [addedAt]);
 
   function focusSizes() {
     const fieldset = sizeFieldsetRef.current;
@@ -196,22 +199,29 @@ export function ProductPurchase({ product, children }: { product: Product; child
     fieldset.querySelector<HTMLInputElement>("input:not(:disabled)")?.focus({ preventScroll: true });
   }
 
-  function addToCart() {
+  /**
+   * Añadir: la foto vuela hasta el icono del carrito (lib/fly-to-cart.ts) y, al llegar, la
+   * línea entra en el carrito y aparece el aviso «Añadido · Ver carrito». El carrito no se
+   * abre solo: se abre desde el icono o desde el aviso. Sin animación (movimiento reducido),
+   * se añade al instante.
+   */
+  async function addToCart(e: MouseEvent<HTMLButtonElement>) {
     if (!selectedVariant) {
       focusSizes();
       return;
     }
     const variantTitle = selectedVariant.selectedOptions.map((o) => `${o.name} ${o.value}`).join(" · ");
-    addLine({
+    const line = {
       variantId: selectedVariant.id,
       handle: product.handle,
       title: product.title,
       variantTitle,
       price: selectedVariant.price,
       image: selectedVariant.image ?? product.featuredImage,
-    });
-    setAdded(true);
-    openCart();
+    };
+    await flyToCart({ from: e.currentTarget, fallbackImage: line.image?.url });
+    addLine(line);
+    setAddedAt(Date.now());
   }
 
   function openNotify() {
@@ -264,16 +274,14 @@ export function ProductPurchase({ product, children }: { product: Product; child
               aria-describedby={needsSize ? hintId : undefined}
               className={primaryButton}
             >
-              Añadir al carrito · {priceText}
+              {addedAt !== null ? "Añadido al carrito ✓" : `Añadir al carrito · ${priceText}`}
             </button>
             {needsSize && (
               <p id={hintId} className="mt-3 text-xs text-stone">
                 Selecciona una talla para continuar.
               </p>
             )}
-            <p className="sr-only" role="status" aria-live="polite">
-              {added ? `${product.title} añadido al carrito.` : ""}
-            </p>
+
           </>
         ) : (
           <>
@@ -352,6 +360,29 @@ export function ProductPurchase({ product, children }: { product: Product; child
             </button>
           )}
         </div>
+      </div>
+
+      {/* Aviso «Añadido · Ver carrito»: confirma sin abrir el carrito. La región siempre está
+          montada para que los lectores de pantalla anuncien cada cambio. */}
+      <div role="status" aria-live="polite" className="cart-notice">
+        {addedAt !== null && (
+          <div key={addedAt} data-enter className="cart-notice-card">
+            <Star className="size-3.5 shrink-0" />
+            <p className="min-w-0 flex-1 truncate text-sm">
+              <span className="font-medium">{product.title}</span> añadido
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setAddedAt(null);
+                openCart();
+              }}
+              className="shrink-0 text-xs font-medium tracking-[0.08em] uppercase underline underline-offset-4 hover:opacity-70"
+            >
+              Ver carrito →
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
