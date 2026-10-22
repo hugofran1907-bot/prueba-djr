@@ -645,10 +645,15 @@
     position: fixed;
     z-index: 45;
     left: 1rem;
-    right: 5.5rem; /* deja libre el botón de WhatsApp */
+    right: 1rem;
     bottom: max(1rem, env(safe-area-inset-bottom));
     pointer-events: none;
     transition: bottom 500ms var(--ease-editorial);
+  }
+  /* Solo se deja hueco a la derecha si el botón de WhatsApp existe (aparece al configurar el número):
+     si no, el aviso quedaba estrecho en el móvil y cortaba el nombre de la prenda. */
+  body:has(.whatsapp-fab) .cart-notice {
+    right: 5.5rem;
   }
   @media (width < 64rem) {
     body:has([data-sticky-buy][data-visible="true"]) .cart-notice {

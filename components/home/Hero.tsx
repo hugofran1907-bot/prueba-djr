@@ -83,7 +83,9 @@ export function Hero() {
       ref={root}
       aria-labelledby="hero-title"
       data-darkroom
-      className="hero-cine relative isolate h-svh min-h-[34rem] overflow-hidden bg-night text-navy"
+      // Móvil: alto mínimo de pantalla, pero crece si el texto no cabe (en móviles pequeños el
+      // último botón quedaba cortado). Escritorio: alto fijo, porque GSAP fija la sección con él.
+      className="hero-cine relative isolate min-h-svh overflow-hidden bg-night text-navy md:h-svh md:min-h-[34rem]"
     >
       {/* La foto empieza bajo la cabecera fija (avisos + barra) para no cortar las caras. */}
       <div
@@ -134,7 +136,7 @@ export function Hero() {
         className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-night via-night/30 to-night/50"
       />
 
-      <div className="container-editorial flex h-full flex-col justify-end pt-28 pb-8 md:pb-12">
+      <div className="container-editorial flex min-h-svh flex-col justify-end pt-28 pb-6 md:h-full md:min-h-0 md:pb-12">
         <p className="eyebrow hero-rise text-navy/75">{eyebrow}</p>
 
         <h1
@@ -157,7 +159,7 @@ export function Hero() {
         </h1>
 
         {/* Igual que el titular: GSAP en el envoltorio (data-hero-copy), entrada CSS dentro. */}
-        <div data-hero-copy className="mt-8 md:mt-12">
+        <div data-hero-copy className="mt-6 md:mt-12">
         <div className="hero-rise flex flex-col gap-6 [animation-delay:420ms] md:flex-row md:items-end md:justify-between">
           <div className="max-w-md">
             <p className="text-base leading-relaxed text-navy md:text-lg">{text}</p>

@@ -16,6 +16,10 @@ import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
+// Móvil: al hacer scroll, la barra de direcciones aparece y desaparece y cambia el alto de la
+// pantalla. Sin esto, ScrollTrigger lo recalcula todo en cada cambio y la página da saltos.
+ScrollTrigger.config({ ignoreMobileResize: true });
+
 export const EASE = {
   /** Entradas y revelados: arranque rápido, asentamiento largo. */
   out: "expo.out",
