@@ -1,13 +1,22 @@
 "use client";
 
 import NextImage from "next/image";
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type MouseEvent } from "react";
+import { Morph } from "@/components/product/Morph";
 import type { Image, Video } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type Media = { type: "image"; image: Image } | { type: "video"; video: Video };
 
 const SIZES = "(min-width: 1024px) 55vw, 100vw";
+
+/** Mismo corte que las clases lg: de la galería (móvil/tablet ↔ escritorio). */
+const DESKTOP_QUERY = "(min-width: 1024px)";
+function subscribeDesktop(cb: () => void) {
+  const mq = window.matchMedia(DESKTOP_QUERY);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
 
 function LoopVideo({ video, label }: { video: Video; label: string }) {
   const ref = useRef<HTMLVideoElement>(null);
@@ -76,11 +85,25 @@ function ZoomImage({ image, priority }: { image: Image; priority: boolean }) {
   );
 }
 
-export function ProductGallery({ images, video, title }: { images: Image[]; video: Video | null; title: string }) {
+export function ProductGallery({
+  images,
+  video,
+  title,
+  morphName,
+}: {
+  images: Image[];
+  video: Video | null;
+  title: string;
+  /** Nombre compartido con la foto de la tarjeta (lib/utils · productMorphName). */
+  morphName?: string;
+}) {
   const media: Media[] = images.map((image) => ({ type: "image", image }));
   if (video) media.splice(Math.min(1, media.length), 0, { type: "video", video });
 
   const [active, setActive] = useState(0);
+  // Las dos galerías (móvil y escritorio) están montadas a la vez: solo la visible lleva
+  // el nombre compartido, porque un nombre de View Transition no puede repetirse.
+  const isDesktop = useSyncExternalStore(subscribeDesktop, () => window.matchMedia(DESKTOP_QUERY).matches, () => false);
   const sliderRef = useRef<HTMLDivElement>(null);
   const multiple = media.length > 1;
 
@@ -114,19 +137,20 @@ export function ProductGallery({ images, video, title }: { images: Image[]; vide
           aria-label={multiple ? `Imágenes de ${title}` : undefined}
         >
           {media.map((m, i) => (
-            <div
-              key={i}
-              className="relative aspect-[4/5] w-full shrink-0 snap-center bg-cream-deep"
-              role={multiple ? "group" : undefined}
-              aria-roledescription={multiple ? "diapositiva" : undefined}
-              aria-label={multiple ? `${i + 1} de ${media.length}` : undefined}
-            >
-              {m.type === "image" ? (
-                <NextImage src={m.image.url} alt={m.image.altText} fill priority={i === 0} sizes={SIZES} className="object-cover" />
-              ) : (
-                <LoopVideo video={m.video} label={videoLabel} />
-              )}
-            </div>
+            <Morph key={i} name={i === 0 && !isDesktop ? morphName : undefined}>
+              <div
+                className="relative aspect-[4/5] w-full shrink-0 snap-center bg-cream-deep"
+                role={multiple ? "group" : undefined}
+                aria-roledescription={multiple ? "diapositiva" : undefined}
+                aria-label={multiple ? `${i + 1} de ${media.length}` : undefined}
+              >
+                {m.type === "image" ? (
+                  <NextImage src={m.image.url} alt={m.image.altText} fill priority={i === 0} sizes={SIZES} className="object-cover" />
+                ) : (
+                  <LoopVideo video={m.video} label={videoLabel} />
+                )}
+              </div>
+            </Morph>
           ))}
         </div>
 
@@ -184,6 +208,7 @@ export function ProductGallery({ images, video, title }: { images: Image[]; vide
           </ul>
         )}
 
+        <Morph name={active === 0 && isDesktop ? morphName : undefined}>
         <div className="relative aspect-[4/5] bg-cream-deep">
           {(() => {
             const m = media[Math.min(active, media.length - 1)];
@@ -194,6 +219,7 @@ export function ProductGallery({ images, video, title }: { images: Image[]; vide
             );
           })()}
         </div>
+        </Morph>
       </div>
     </div>
   );

@@ -14,3 +14,6 @@ export function formatPrice({ amount, currencyCode }: Money, locale = "es-ES") {
 }
 
 export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+
+/** Nombre de View Transition compartido por la foto de la tarjeta y la de la ficha de producto. */
+export const productMorphName = (handle: string) => `product-${handle.replace(/[^a-z0-9-]/gi, "")}`;

@@ -41,7 +41,7 @@ async function Results({ query }: { query: string }) {
         {products.length} {products.length === 1 ? "producto" : "productos"}
       </p>
       {isUsingMockData() && <DemoNotice className="mb-8" />}
-      <ProductGrid products={products} priorityCount={3} />
+      <ProductGrid products={products} priorityCount={4} />
     </>
   );
 }

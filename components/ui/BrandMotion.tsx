@@ -1,30 +1,48 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { Star } from "@/components/ui/Star";
+import { useEffect } from "react";
 
 const FINE_POINTER = "(hover: hover) and (pointer: fine)";
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)";
 
+const clamp = (v: number, max: number) => Math.max(-max, Math.min(max, v));
+
 /**
- * Movimientos de marca que dependen del puntero, con un único listener delegado:
- *  - [data-star-cursor]: la estrella DJR® sustituye al cursor sobre las fotos.
- *  - [data-darkroom]: guarda la posición del cursor (--mx, --my) para que el color
- *    se revele desde ahí, como en un cuarto oscuro (estilos en globals.css).
- *  - [data-tilt]: inclina la foto como una prenda colgada de una percha (--tilt).
- * Solo con ratón; en táctil no hace nada y todo se ve igual que sin JavaScript.
+ * Respuestas al cursor de toda la web, con un único listener delegado y un frame
+ * por movimiento (estilos en globals.css · «Movimientos de marca»):
+ *  - [data-darkroom]: posición del cursor (--mx, --my) para revelar el color desde ahí.
+ *  - [data-tilt]: perspectiva 3D hacia el cursor (--rx, --ry) y reflejo (--gx, --gy).
+ *  - [data-magnetic]: el botón se acerca suavemente al cursor (--mag-x, --mag-y);
+ *    la zona de clic no cambia, solo se desplaza unos píxeles.
+ * Solo con ratón; en táctil o con movimiento reducido no hace nada.
+ * No sustituye el cursor del sistema.
  */
 export function BrandMotion() {
-  const starRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (!window.matchMedia(FINE_POINTER).matches) return;
     const reduced = window.matchMedia(REDUCED_MOTION);
-    const star = starRef.current;
-    let frame = 0;
-    let lastTilt: HTMLElement | null = null;
 
-    const onMove = (e: PointerEvent) => {
+    let frame = 0;
+    let pending: PointerEvent | null = null;
+    let lastTilt: HTMLElement | null = null;
+    let lastMagnet: HTMLElement | null = null;
+
+    const resetTilt = (el: HTMLElement | null) => {
+      if (!el) return;
+      el.style.removeProperty("--rx");
+      el.style.removeProperty("--ry");
+      delete el.dataset.tilting;
+    };
+    const resetMagnet = (el: HTMLElement | null) => {
+      if (!el) return;
+      el.style.removeProperty("--mag-x");
+      el.style.removeProperty("--mag-y");
+    };
+
+    const update = () => {
+      frame = 0;
+      const e = pending;
+      if (!e) return;
       const target = e.target instanceof Element ? e.target : null;
       const { clientX: x, clientY: y } = e;
 
@@ -35,44 +53,54 @@ export function BrandMotion() {
         darkroom.style.setProperty("--my", `${y - r.top}px`);
       }
 
-      const tilt = reduced.matches ? null : (target?.closest<HTMLElement>("[data-tilt]") ?? null);
-      if (lastTilt && lastTilt !== tilt) lastTilt.style.removeProperty("--tilt");
+      const motion = !reduced.matches;
+
+      const tilt = motion ? (target?.closest<HTMLElement>("[data-tilt]") ?? null) : null;
+      if (lastTilt !== tilt) resetTilt(lastTilt);
       if (tilt) {
         const r = tilt.getBoundingClientRect();
-        const offset = (x - r.left) / r.width - 0.5; // -0.5 … 0.5
-        tilt.style.setProperty("--tilt", `${(offset * 5).toFixed(2)}deg`);
+        const px = (x - r.left) / r.width; // 0 … 1
+        const py = (y - r.top) / r.height;
+        tilt.style.setProperty("--ry", `${((px - 0.5) * 9).toFixed(2)}deg`);
+        tilt.style.setProperty("--rx", `${((0.5 - py) * 7).toFixed(2)}deg`);
+        tilt.style.setProperty("--gx", `${(px * 100).toFixed(1)}%`);
+        tilt.style.setProperty("--gy", `${(py * 100).toFixed(1)}%`);
+        tilt.dataset.tilting = "";
       }
       lastTilt = tilt;
 
-      if (star) {
-        star.dataset.visible = target?.closest("[data-star-cursor]") ? "true" : "false";
-        cancelAnimationFrame(frame);
-        frame = requestAnimationFrame(() => {
-          star.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-        });
+      const magnet = motion ? (target?.closest<HTMLElement>("[data-magnetic]") ?? null) : null;
+      if (lastMagnet !== magnet) resetMagnet(lastMagnet);
+      if (magnet) {
+        const r = magnet.getBoundingClientRect();
+        const dx = x - (r.left + r.width / 2);
+        const dy = y - (r.top + r.height / 2);
+        magnet.style.setProperty("--mag-x", `${clamp(dx * 0.22, 10).toFixed(1)}px`);
+        magnet.style.setProperty("--mag-y", `${clamp(dy * 0.35, 6).toFixed(1)}px`);
       }
+      lastMagnet = magnet;
+    };
+
+    const onMove = (e: PointerEvent) => {
+      pending = e;
+      if (!frame) frame = requestAnimationFrame(update);
     };
 
     const onLeave = () => {
-      if (star) star.dataset.visible = "false";
-      lastTilt?.style.removeProperty("--tilt");
-      lastTilt = null;
+      resetTilt(lastTilt);
+      resetMagnet(lastMagnet);
+      lastTilt = lastMagnet = null;
     };
 
     document.addEventListener("pointermove", onMove, { passive: true });
     document.documentElement.addEventListener("pointerleave", onLeave);
-    document.documentElement.classList.add("star-cursor-ready");
     return () => {
       cancelAnimationFrame(frame);
       document.removeEventListener("pointermove", onMove);
       document.documentElement.removeEventListener("pointerleave", onLeave);
-      document.documentElement.classList.remove("star-cursor-ready");
+      onLeave();
     };
   }, []);
 
-  return (
-    <div ref={starRef} aria-hidden="true" data-visible="false" className="star-cursor">
-      <Star className="size-5" />
-    </div>
-  );
+  return null;
 }

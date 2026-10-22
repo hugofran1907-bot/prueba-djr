@@ -13,7 +13,8 @@ export function PromoBanner() {
       aria-labelledby="promo-title"
       className={cn("group grid text-navy md:grid-cols-2", tone === "burgundy" ? "bg-cream-deep" : "bg-night")}
     >
-      <div className="relative aspect-[4/5] overflow-hidden md:aspect-auto md:min-h-[42rem]">
+      {/* data-liquid: la foto se revela con una ola al hacer scroll (components/ui/LiquidReveals.tsx). */}
+      <div data-liquid className="relative aspect-[4/5] overflow-hidden md:aspect-auto md:min-h-[42rem]">
         <Image
           src={image.url}
           alt={image.alt}
@@ -26,7 +27,7 @@ export function PromoBanner() {
         />
       </div>
 
-      <div className="flex flex-col justify-between gap-16 px-5 py-14 md:px-12 md:py-16 lg:px-20" data-reveal-stagger>
+      <div className="flex flex-col justify-between gap-16 px-5 py-14 md:px-12 md:py-16 lg:px-20" data-reveal-stagger suppressHydrationWarning>
         <p className="eyebrow text-stone">{eyebrow}</p>
         <div>
           <h2 id="promo-title" className="font-serif text-headline text-balance">

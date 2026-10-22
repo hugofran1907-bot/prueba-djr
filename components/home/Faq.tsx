@@ -39,7 +39,7 @@ export function Faq() {
             Ver todas
           </ButtonLink>
         </div>
-        <div data-reveal className="lg:col-span-7 lg:col-start-6">
+        <div suppressHydrationWarning data-reveal className="lg:col-span-7 lg:col-start-6">
           <FaqList />
         </div>
       </div>

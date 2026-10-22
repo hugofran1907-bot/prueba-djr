@@ -12,8 +12,11 @@ export function BrandStatement() {
       <SectionHeading eyebrow={eyebrow} id="marca-title" title={<ScrollWords text={title} />} className="max-w-5xl" />
 
       <div className="mt-14 grid gap-12 md:mt-20 md:grid-cols-12 md:gap-8">
-        <div data-reveal className="relative aspect-[4/5] md:col-span-5 md:col-start-1">
-          <Image src={image.url} alt={image.alt} fill sizes="(min-width: 768px) 40vw, 100vw" className="photo-mono rounded-media object-cover" />
+        <div className="relative aspect-[4/5] md:col-span-5 md:col-start-1">
+          {/* data-liquid: revelado con una ola al hacer scroll (el sello queda fuera de la máscara). */}
+          <div data-liquid className="absolute inset-0 overflow-hidden rounded-media">
+            <Image src={image.url} alt={image.alt} fill sizes="(min-width: 768px) 40vw, 100vw" className="photo-mono object-cover" />
+          </div>
           {/* Sello tipográfico superpuesto */}
           <span
             aria-hidden="true"
@@ -23,7 +26,7 @@ export function BrandStatement() {
           </span>
         </div>
 
-        <div data-reveal-stagger className="flex flex-col justify-between gap-14 md:col-span-6 md:col-start-7">
+        <div suppressHydrationWarning data-reveal-stagger className="flex flex-col justify-between gap-14 md:col-span-6 md:col-start-7">
           <div className="space-y-5 text-base leading-relaxed text-navy/85 md:text-lg">
             {paragraphs.map((p) => (
               <p key={p}>{p}</p>

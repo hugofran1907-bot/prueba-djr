@@ -61,7 +61,7 @@ async function CollectionProducts({ handle }: { handle: string }) {
     <>
       {isUsingMockData() && <DemoNotice className="mb-8" />}
       {/* [Fase 2] Filtros y ordenación: barra de controles aquí, leyendo searchParams. */}
-      <ProductGrid products={products} priorityCount={3} />
+      <ProductGrid products={products} priorityCount={4} />
     </>
   );
 }

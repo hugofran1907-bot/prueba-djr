@@ -38,7 +38,7 @@ type ButtonLinkProps = ComponentProps<typeof Link> & {
 
 export function ButtonLink({ variant = "primary", arrow = false, className, children, ...props }: ButtonLinkProps) {
   return (
-    <Link className={cn(base, variants[variant], className)} {...props}>
+    <Link data-magnetic className={cn(base, variants[variant], className)} {...props}>
       <span>{children}</span>
       {arrow && <ArrowIcon />}
     </Link>
@@ -48,5 +48,5 @@ export function ButtonLink({ variant = "primary", arrow = false, className, chil
 type ButtonProps = ComponentProps<"button"> & { variant?: Variant };
 
 export function Button({ variant = "primary", className, type = "button", ...props }: ButtonProps) {
-  return <button type={type} className={cn(base, variants[variant], className)} {...props} />;
+  return <button data-magnetic type={type} className={cn(base, variants[variant], className)} {...props} />;
 }

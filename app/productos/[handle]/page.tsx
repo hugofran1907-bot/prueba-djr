@@ -20,7 +20,7 @@ import { ProductGrid } from "@/components/product/ProductGrid";
 import { Accordion } from "@/components/ui/Accordion";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { ErrorState } from "@/components/ui/States";
-import { siteUrl } from "@/lib/utils";
+import { productMorphName, siteUrl } from "@/lib/utils";
 
 type Props = { params: Promise<{ handle: string }> };
 
@@ -203,7 +203,12 @@ export default async function ProductPage({ params }: Props) {
         {/* Apilado por debajo de 1024 px; dos columnas a partir de lg. */}
         <div className="grid gap-10 lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14 xl:gap-20">
           <div data-gallery className="min-w-0">
-            <ProductGallery images={product.images} video={product.video} title={product.title} />
+            <ProductGallery
+              images={product.images}
+              video={product.video}
+              title={product.title}
+              morphName={productMorphName(product.handle)}
+            />
           </div>
 
           <div data-buy-column className="min-w-0">
@@ -224,7 +229,8 @@ export default async function ProductPage({ params }: Props) {
         <section aria-labelledby="look-title" className="container-editorial border-t border-navy/10 py-20 md:py-28">
           <SectionHeading eyebrow="Combínalo" id="look-title" title="Completa el look" />
           <div className="mt-12">
-            <ProductGrid products={look} />
+            {/* Sin morph: estos productos pueden repetirse en «También te puede gustar». */}
+            <ProductGrid products={look} morph={false} />
           </div>
         </section>
       )}

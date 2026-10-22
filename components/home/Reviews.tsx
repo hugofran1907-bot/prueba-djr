@@ -21,7 +21,7 @@ export function Reviews() {
   if (reviews.length === 0) {
     return (
       <section aria-labelledby="reviews-title" className="bg-night text-navy">
-        <div data-reveal-stagger className="container-editorial flex flex-col gap-10 py-24 md:flex-row md:items-end md:justify-between md:py-32">
+        <div suppressHydrationWarning data-reveal-stagger className="container-editorial flex flex-col gap-10 py-24 md:flex-row md:items-end md:justify-between md:py-32">
           <div>
             <h2 id="reviews-title" className="font-serif text-headline text-balance">
               Síguenos en Instagram.

@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/lib/types";
+import { Morph } from "@/components/product/Morph";
+import { productMorphName } from "@/lib/utils";
 import { Price } from "@/components/product/Price";
 import { cn } from "@/lib/utils";
 
@@ -10,6 +12,8 @@ type Props = {
   priority?: boolean;
   sizes?: string;
   className?: string;
+  /** Foto compartida con la ficha al navegar (View Transitions). false si el producto puede repetirse en la página. */
+  morph?: boolean;
 };
 
 export function ProductCard({
@@ -17,6 +21,7 @@ export function ProductCard({
   priority = false,
   sizes = "(min-width: 768px) 25vw, 50vw",
   className,
+  morph = true,
 }: Props) {
   const image = product.featuredImage;
   // Segunda foto para el hover (p. ej. la espalda de la prenda), si existe.
@@ -33,10 +38,13 @@ export function ProductCard({
   }));
 
   return (
-    // data-star-cursor, data-darkroom y data-tilt: movimientos de marca (components/ui/BrandMotion.tsx).
+    // data-darkroom y data-tilt: movimientos de marca (components/ui/BrandMotion.tsx).
     // Van en el <article> porque el enlace que cubre la tarjeta es quien recibe el puntero.
-    <article data-star-cursor data-darkroom data-tilt className={cn("group relative", className)}>
-      <div className="hanger relative aspect-[4/5] overflow-hidden rounded-media bg-cream">
+    <article data-darkroom data-tilt className={cn("card-3d group relative", className)}>
+      {/* Mismo nombre que la foto principal de la ficha: al abrir el producto, la foto «viaja»
+          de la tarjeta a la galería (View Transitions; sin soporte, navega igual). */}
+      <Morph name={morph ? productMorphName(product.handle) : undefined}>
+      <div className="card-3d-media relative aspect-[4/5] overflow-hidden rounded-media bg-cream">
         {image ? (
           <Image
             src={image.url}
@@ -62,6 +70,8 @@ export function ProductCard({
             className="darkroom-layer object-cover transition-transform duration-[1200ms] ease-editorial group-hover:scale-[1.04]"
           />
         )}
+        {/* Reflejo controlado que sigue al cursor sobre la foto inclinada (--gx, --gy). */}
+        <span aria-hidden="true" className="card-3d-glare" />
 
         {isNew && (
           <span className="eyebrow absolute top-3 left-3 rounded-full bg-white px-2.5 py-1 text-xs text-navy">Nuevo</span>
@@ -73,6 +83,7 @@ export function ProductCard({
           </span>
         )}
       </div>
+      </Morph>
 
       <div className="mt-4 text-center">
         <h3 className="text-xs font-medium tracking-[0.047em] uppercase">

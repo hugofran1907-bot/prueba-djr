@@ -8,6 +8,7 @@ import { CartProvider } from "@/components/cart/CartContext";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { RevealObserver } from "@/components/ui/RevealObserver";
 import { BrandMotion } from "@/components/ui/BrandMotion";
+import { LiquidReveals } from "@/components/ui/LiquidReveals";
 import { siteUrl } from "@/lib/utils";
 import "./globals.css";
 
@@ -56,7 +57,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${serif.variable} ${sans.variable}`}>
+    // data-scroll-behavior: Next desactiva el scroll suave de globals.css durante los cambios de ruta.
+    <html lang="es" data-scroll-behavior="smooth" className={`${serif.variable} ${sans.variable}`}>
       <body className="min-h-dvh">
         <CartProvider>
           <Header />
@@ -68,6 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <WhatsAppButton />
           <RevealObserver />
           <BrandMotion />
+          <LiquidReveals />
         </CartProvider>
       </body>
     </html>

@@ -96,6 +96,13 @@ export const heroContent = {
     url: "/images/portada/portada-blanco-bn.webp",
     alt: "Los mismos modelos con camiseta blanca DJR y pantalón blanco de pierna ancha",
   } as { url: string; alt: string } | null,
+  /**
+   * Vídeo de campaña de fondo (opcional). Solo se reproduce en escritorio, con movimiento
+   * permitido y sin ahorro de datos; en el resto se ve la foto de arriba. Recomendado:
+   * MP4 (H.264) de 8–15 s en bucle, sin audio, 1920 px de ancho y menos de 4 MB, en
+   * public/videos/. Ejemplo: { src: "/videos/campana.mp4", type: "video/mp4" }.
+   */
+  video: null as { src: string; type: string; poster?: string } | null,
 };
 
 export const brandContent = {

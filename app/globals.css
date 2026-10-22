@@ -46,7 +46,9 @@
   }
 
   /* Entrada suave de cada página al navegar (app/template.tsx). */
-  --animate-page-in: page-in 0.6s var(--ease-editorial) both;
+  /* backwards (no both): al terminar no deja ningún transform, que rompería los position: fixed
+     de dentro (escenas fijadas con ScrollTrigger, barra de compra móvil). */
+  --animate-page-in: page-in 0.6s var(--ease-editorial) backwards;
   @keyframes page-in {
     from { opacity: 0; transform: translateY(0.75rem); }
     to { opacity: 1; transform: none; }
@@ -331,40 +333,168 @@
 }
 
 /* ───────────────────────────── Movimientos de marca ─────────────────────────────
-   Lo que hace a DJR® distinta: la estrella, el cuarto oscuro, la percha, el sello,
-   el telón y la firma que se pinta. El puntero lo gestiona components/ui/BrandMotion.tsx.
+   Sistema de movimiento de DJR®. Las mismas curvas en CSS y en GSAP (lib/motion.ts):
+   --ease-editorial ≈ expo.out (entradas), --ease-drawer ≈ power4.inOut (escenas),
+   --ease-out ≈ power3.out (respuestas al cursor). El puntero lo gestiona
+   components/ui/BrandMotion.tsx; el scroll, cada componente con GSAP.
    Todo es transform, opacity o clip-path; con movimiento reducido no se mueve nada. */
 @layer components {
-  /* Estrella como cursor sobre las fotos (solo ratón y con BrandMotion activo). */
-  .star-cursor {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 70;
-    pointer-events: none;
-    color: #fff;
-    mix-blend-mode: difference;
+  /* ── Hero cinematográfico (components/home/Hero.tsx) ── */
+  .hero-kenburns {
+    transform-origin: 50% 15%; /* el zoom se asienta hacia las caras, no hacia el centro */
+    animation: kenburns 9s var(--ease-editorial) both;
   }
-  .star-cursor > svg {
-    translate: -50% -50%;
-    opacity: 0;
-    scale: 0.4;
-    rotate: -45deg;
-    transition:
-      opacity 200ms var(--ease-out),
-      scale 300ms var(--ease-out),
-      rotate 400ms var(--ease-out);
+  @keyframes kenburns {
+    from { transform: scale(1.18); }
+    to { transform: scale(1.04); }
   }
-  .star-cursor[data-visible="true"] > svg {
-    opacity: 1;
-    scale: 1;
-    rotate: 0deg;
+  /* Cada línea del titular sube desde su máscara. */
+  .hero-mask {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.06em; /* que no corte los descendentes (y, p) */
   }
-  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
-    .star-cursor-ready [data-star-cursor],
-    .star-cursor-ready [data-star-cursor] * {
-      cursor: none;
+  /* backwards: al terminar sueltan transform y opacity para que GSAP pueda moverlos con el scroll. */
+  .hero-line {
+    animation: hero-line 1.3s var(--ease-editorial) 0.15s backwards;
+  }
+  @keyframes hero-line {
+    from { transform: translateY(105%); }
+    to { transform: none; }
+  }
+  .hero-rise {
+    animation: rise 1.1s var(--ease-editorial) 0.3s backwards;
+  }
+
+  /* ── Tipografía cinética (components/home/KineticType.tsx) ── */
+  .kinetic-row {
+    display: flex;
+    width: max-content;
+    white-space: nowrap;
+    font-family: var(--font-sans);
+    font-size: clamp(4.5rem, 17vw, 17rem);
+    font-weight: 800;
+    line-height: 0.88;
+    letter-spacing: -0.045em;
+    text-transform: uppercase;
+    will-change: transform;
+  }
+  .kinetic-outline {
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--color-navy);
+  }
+  .kinetic-outline svg {
+    color: var(--color-navy);
+  }
+  /* La foto se ve a través de las letras; si el navegador no lo soporta, texto blanco. */
+  .kinetic-image {
+    color: var(--color-navy);
+  }
+  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .kinetic-image {
+      color: transparent;
+      background-size: 60vw auto;
+      background-repeat: repeat-x;
+      background-position: 50% 30%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      filter: grayscale(1) contrast(1.15) brightness(1.35);
     }
+    .kinetic-image svg {
+      color: var(--color-navy);
+    }
+  }
+
+  /* ── Colecciones contadas con el scroll (components/home/CollectionsStory.tsx) ── */
+  .story {
+    display: grid;
+    gap: 4rem;
+  }
+  .story-item {
+    display: grid;
+    gap: 1.75rem;
+  }
+  .story-media {
+    position: relative;
+    order: -1;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    border-radius: var(--radius-media);
+    background: var(--color-cream);
+  }
+  .story-mask {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.08em;
+  }
+  /* Escritorio con GSAP activo: la lista pasa a ser una escena fijada con capas. */
+  .story.is-pinned {
+    position: relative;
+    display: block;
+    height: 100svh;
+  }
+  .story.is-pinned .story-item {
+    position: absolute;
+    inset: 7.25rem 0 2rem; /* deja libre la cabecera fija (avisos + barra) */
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    gap: 4rem;
+    pointer-events: none;
+  }
+  .story.is-pinned .story-text {
+    pointer-events: auto;
+  }
+  .story.is-pinned .story-media {
+    order: 0;
+    justify-self: center;
+    height: min(calc(100svh - 11rem), 46rem);
+    will-change: clip-path, transform;
+  }
+  .story.is-pinned .story-media img {
+    will-change: transform;
+  }
+
+  /* ── Tarjetas 3D (ProductCard): perspectiva hacia el cursor y reflejo controlado ── */
+  .card-3d {
+    perspective: 1100px;
+  }
+  .card-3d-media {
+    transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transition: transform 700ms var(--ease-out);
+  }
+  .card-3d[data-tilting] .card-3d-media {
+    transition-duration: 150ms; /* sigue al cursor de cerca; al salir vuelve despacio */
+  }
+  .card-3d-glare {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+      circle at var(--gx, 50%) var(--gy, 0%),
+      rgb(255 255 255 / 0.22),
+      rgb(255 255 255 / 0) 55%
+    );
+    mix-blend-mode: soft-light;
+    transition: opacity 500ms var(--ease-out);
+  }
+  .card-3d[data-tilting] .card-3d-glare {
+    opacity: 1;
+  }
+
+  /* ── Botones magnéticos (Button.tsx): el botón y, un poco más, su contenido ── */
+  [data-magnetic] {
+    translate: var(--mag-x, 0) var(--mag-y, 0);
+    transition:
+      translate 600ms var(--ease-out),
+      background-color 300ms,
+      color 300ms,
+      border-color 300ms,
+      transform 300ms;
+  }
+  [data-magnetic] > * {
+    translate: calc(var(--mag-x, 0px) * 0.45) calc(var(--mag-y, 0px) * 0.45);
+    transition: translate 600ms var(--ease-out);
   }
 
   /* Cuarto oscuro: la capa en color se abre en círculo desde el cursor (--mx, --my). */
@@ -380,13 +510,6 @@
     }
   }
 
-  /* Percha: la foto cuelga del borde superior y se inclina hacia el cursor (--tilt). */
-  .hanger {
-    transform: rotate(var(--tilt, 0deg));
-    transform-origin: 50% 0;
-    transition: transform 600ms var(--ease-out);
-  }
-
   /* Sello del carrito: la estrella cae grande y girada y se asienta. */
   [data-stamp] {
     transition:
@@ -400,37 +523,67 @@
     }
   }
 
-  /* Telón de navegación: negro con el monograma, se retira hacia arriba. */
+  /* ── Transición entre páginas (PageCurtain): telón negro con el título de destino ── */
   .page-curtain {
     position: fixed;
     inset: 0;
     z-index: 60;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 1.5rem;
     background: var(--color-night);
     pointer-events: none;
-    animation: curtain-up 700ms var(--ease-drawer) 120ms both;
+    clip-path: inset(0 0 0 0);
+    animation: curtain-out 900ms var(--ease-drawer) 520ms both;
   }
-  .page-curtain > * {
-    animation: curtain-mark 700ms var(--ease-out) both;
+  .page-curtain-mark {
+    animation: curtain-mark 1.1s var(--ease-editorial) both;
   }
-  @keyframes curtain-up {
-    to { transform: translateY(-100%); }
+  .page-curtain-mask {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.08em;
+  }
+  .page-curtain-title {
+    display: block;
+    animation: curtain-title 1.2s var(--ease-editorial) 60ms both;
+  }
+  @keyframes curtain-out {
+    to { clip-path: inset(0 0 100% 0); }
   }
   @keyframes curtain-mark {
-    from { opacity: 0; transform: scale(0.9); }
-    40% { opacity: 1; transform: scale(1); }
-    to { opacity: 0; transform: translateY(-1.5rem); }
+    from { opacity: 0; transform: translateY(0.75rem); }
+    40% { opacity: 1; transform: none; }
+    to { opacity: 0; transform: translateY(-1rem); }
+  }
+  @keyframes curtain-title {
+    from { transform: translateY(105%); }
+    45% { transform: none; }
+    to { transform: translateY(-40%); }
+  }
+
+  /* Foto que viaja de la tarjeta a la ficha (View Transitions, components/product/Morph.tsx). */
+  ::view-transition-group(.morph) {
+    animation-duration: 650ms;
+    animation-timing-function: var(--ease-drawer);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .star-cursor,
     .page-curtain {
       display: none;
     }
-    .hanger {
+    .card-3d-media,
+    [data-magnetic],
+    [data-magnetic] > * {
       transform: none;
+      translate: none;
+    }
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+      animation: none !important;
     }
   }
 

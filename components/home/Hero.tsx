@@ -1,62 +1,169 @@
+"use client";
+
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import { heroContent } from "@/config/site";
 import { ButtonLink } from "@/components/ui/Button";
+import { EASE, MEDIA, gsap, useGSAP } from "@/lib/motion";
+
+/** Vídeo solo en escritorio, con movimiento permitido y sin ahorro de datos ni conexión lenta. */
+function useVideoAllowed(enabled: boolean) {
+  const [allowed, setAllowed] = useState(false);
+  useEffect(() => {
+    if (!enabled) return;
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } })
+      .connection;
+    const slow = connection?.saveData || /(^|-)2g$/.test(connection?.effectiveType ?? "");
+    const mq = window.matchMedia(MEDIA.desktop);
+    const apply = () => setAllowed(mq.matches && !slow);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, [enabled]);
+  return allowed;
+}
 
 /**
- * Hero partido 50/50: foto a sangre a la izquierda y panel crema a la derecha,
- * con borde duro entre ambos (sin velados ni degradados).
+ * Hero cinematográfico a pantalla completa.
+ *  - Carga (CSS, funciona sin JS): la foto se asienta con un zoom lento y el titular
+ *    gigante sube línea a línea desde una máscara.
+ *  - Scroll en escritorio (GSAP): la sección se fija durante una pantalla; la imagen se
+ *    recoge en un marco, las dos líneas del titular se separan hacia los lados y el texto
+ *    se retira. En móvil, solo un paralaje ligero, sin fijar nada.
+ *  - Vídeo opcional (config/site.ts → heroContent.video): solo en escritorio; la foto
+ *    queda debajo como alternativa para móvil, conexiones lentas o si el vídeo no arranca.
  */
 export function Hero() {
-  const { eyebrow, title, text, valueProp, cta, secondaryCta, image, hoverImage } = heroContent;
+  const { eyebrow, title, text, valueProp, cta, secondaryCta, image, hoverImage, video } = heroContent;
+  const root = useRef<HTMLElement>(null);
+  const showVideo = useVideoAllowed(Boolean(video));
+
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+
+      mm.add(MEDIA.desktop, () => {
+        const tl = gsap.timeline({
+          defaults: { ease: "none" },
+          scrollTrigger: { trigger: root.current, start: "top top", end: "+=100%", pin: true, scrub: 0.6 },
+        });
+        tl.fromTo(
+          "[data-hero-media]",
+          { clipPath: "inset(0% 0% 0% 0% round 0px)", scale: 1 },
+          { clipPath: "inset(12% 9% 12% 9% round 24px)", scale: 0.96 },
+          0,
+        )
+          .to("[data-hero-line='0']", { xPercent: -22, opacity: 0.15 }, 0)
+          .to("[data-hero-line='1']", { xPercent: 22, opacity: 0.15 }, 0)
+          .to("[data-hero-copy]", { yPercent: -40, opacity: 0 }, 0)
+          .to("[data-hero-scrim]", { opacity: 0.25 }, 0);
+      });
+
+      mm.add(MEDIA.mobile, () => {
+        gsap.to("[data-hero-media]", {
+          yPercent: 12,
+          ease: "none",
+          scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
+        });
+        gsap.to("[data-hero-title]", {
+          yPercent: -18,
+          opacity: 0.2,
+          ease: EASE.soft,
+          scrollTrigger: { trigger: root.current, start: "top top", end: "bottom top", scrub: true },
+        });
+      });
+
+      return () => mm.revert();
+    },
+    { scope: root },
+  );
 
   return (
     <section
+      ref={root}
       aria-labelledby="hero-title"
-      className="grid pt-[6.25rem] md:min-h-svh md:grid-cols-2 md:pt-[7.25rem]"
+      data-darkroom
+      className="hero-cine relative isolate h-svh min-h-[34rem] overflow-hidden bg-night text-navy"
     >
-      {/* En móvil la foto es apaisada (4:3) para que el titular entre en la primera pantalla. */}
-      <div data-star-cursor data-darkroom className="group/hero relative aspect-[4/3] overflow-hidden bg-cream md:aspect-auto">
-        <Image
-          src={image.url}
-          alt={image.alt}
-          fill
-          priority
-          sizes="(min-width: 768px) 50vw, 100vw"
-          className="animate-[settle_1.8s_var(--ease-editorial)_both] object-cover object-[50%_12%] md:object-[50%_20%]"
-        />
-        {/* Cuarto oscuro: la segunda foto se revela desde el cursor (solo ratón). Las dos fotos de
-            portada ya vienen en blanco y negro: se muestran sin filtros para conservar su tono original. */}
-        {hoverImage && (
+      {/* La foto empieza bajo la cabecera fija (avisos + barra) para no cortar las caras. */}
+      <div
+        data-hero-media
+        className="absolute inset-x-0 top-[6.25rem] bottom-0 -z-10 overflow-hidden will-change-[clip-path,transform] md:top-[7.25rem]"
+      >
+        <div className="hero-kenburns absolute inset-0">
           <Image
-            src={hoverImage.url}
-            alt=""
-            aria-hidden="true"
+            src={image.url}
+            alt={image.alt}
             fill
-            loading="eager"
-            sizes="(min-width: 768px) 50vw, 100vw"
-            className="darkroom-layer object-cover object-[50%_12%] md:object-[50%_20%]"
+            priority
+            sizes="100vw"
+            className="photo-mono object-cover object-[50%_0%]"
           />
-        )}
+          {/* Cuarto oscuro: la segunda foto se revela desde el cursor (solo ratón). */}
+          {hoverImage && (
+            <Image
+              src={hoverImage.url}
+              alt=""
+              aria-hidden="true"
+              fill
+              sizes="100vw"
+              className="photo-mono darkroom-layer object-cover object-[50%_0%]"
+            />
+          )}
+          {video && showVideo && (
+            <video
+              className="absolute inset-0 size-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              poster={video.poster ?? image.url}
+              aria-hidden="true"
+            >
+              <source src={video.src} type={video.type} />
+            </video>
+          )}
+        </div>
       </div>
 
-      {/* Panel crema con la pila de texto centrada (DESIGN.md · Split Editorial Hero). */}
-      <div className="flex flex-col items-center justify-between gap-6 bg-cream px-5 py-8 text-center md:gap-12 md:px-12 md:py-14 lg:px-16 xl:px-20">
-        <p className="eyebrow animate-rise text-stone">{eyebrow}</p>
+      {/* Velado neutro solo para la legibilidad del texto sobre la foto. */}
+      <div
+        data-hero-scrim
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-night via-night/30 to-night/50"
+      />
 
-        <div className="flex flex-col items-center">
-          <p aria-hidden="true" className="mb-6 hidden animate-rise md:block text-xl font-medium tracking-[0.064em] uppercase">
-            DJR®
-          </p>
-          <h1 id="hero-title" className="font-serif text-[clamp(3.25rem,7vw,8rem)] leading-[0.9] tracking-[-0.01em]">
-            <span className="block animate-rise [animation-delay:120ms]">{title[0]}</span>
-            <span className="block animate-rise text-burgundy italic [animation-delay:240ms]">{title[1]}</span>
-          </h1>
+      <div className="container-editorial flex h-full flex-col justify-end pt-28 pb-8 md:pb-12">
+        <p className="eyebrow hero-rise text-navy/75">{eyebrow}</p>
 
-          <p className="mt-8 max-w-md animate-rise text-base leading-relaxed text-navy [animation-delay:360ms] md:text-lg">
-            {text}
-          </p>
+        <h1
+          id="hero-title"
+          data-hero-title
+          className="mt-4 font-serif text-[clamp(3.5rem,12.5vw,13.5rem)] leading-[0.86] tracking-[-0.02em] md:mt-6"
+        >
+          {/* GSAP mueve la máscara (data-hero-line) y CSS la línea de dentro (hero-line):
+              así la entrada y el scroll no se pisan el transform. */}
+          <span data-hero-line="0" className="hero-mask">
+            <span className="hero-line block">
+              {title[0]}
+            </span>
+          </span>
+          <span data-hero-line="1" className="hero-mask md:text-right">
+            <span className="hero-line block text-burgundy italic [animation-delay:140ms]">
+              {title[1]}
+            </span>
+          </span>
+        </h1>
 
-          <div className="mt-10 flex animate-rise flex-col gap-3 [animation-delay:480ms] sm:flex-row md:flex-col xl:flex-row">
+        {/* Igual que el titular: GSAP en el envoltorio (data-hero-copy), entrada CSS dentro. */}
+        <div data-hero-copy className="mt-8 md:mt-12">
+        <div className="hero-rise flex flex-col gap-6 [animation-delay:420ms] md:flex-row md:items-end md:justify-between">
+          <div className="max-w-md">
+            <p className="text-base leading-relaxed text-navy md:text-lg">{text}</p>
+            <p className="mt-2 text-sm text-navy/70">{valueProp}</p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
             <ButtonLink href={cta.href} variant="primary" arrow>
               {cta.label}
             </ButtonLink>
@@ -65,8 +172,7 @@ export function Hero() {
             </ButtonLink>
           </div>
         </div>
-
-        <p className="animate-rise text-base font-medium text-navy [animation-delay:600ms]">{valueProp}</p>
+        </div>
       </div>
     </section>
   );

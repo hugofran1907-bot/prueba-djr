@@ -98,7 +98,7 @@ export function Footer() {
         {/* Firma tipográfica a todo el ancho */}
         <div aria-hidden="true" className="mt-16 overflow-hidden border-t border-navy/15 pt-6 md:mt-20">
           {/* El monograma se dibuja trazo a trazo y luego se rellena al llegar al pie (data-reveal="draw"). */}
-          <div data-reveal="draw">
+          <div suppressHydrationWarning data-reveal="draw">
             <Logo asLink={false} className="block text-[31vw] leading-[0.8] text-navy md:text-[26vw]" />
           </div>
         </div>

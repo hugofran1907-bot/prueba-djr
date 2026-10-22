@@ -19,6 +19,8 @@ export function SectionHeading({ eyebrow, title, id, action, align = "start", cl
   return (
     <div
       data-reveal
+      // RevealObserver añade data-revealed en el cliente, a veces antes de hidratar.
+      suppressHydrationWarning
       className={cn(
         "flex flex-col gap-6",
         centered ? "items-center text-center" : "md:flex-row md:items-end md:justify-between",

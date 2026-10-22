@@ -9,7 +9,7 @@ import { EmailForm } from "@/components/ui/EmailForm";
 export function Newsletter() {
   return (
     <section aria-labelledby="newsletter-title" className="bg-cream">
-      <div data-reveal-stagger className="container-editorial grid gap-12 py-24 md:grid-cols-12 md:py-32">
+      <div suppressHydrationWarning data-reveal-stagger className="container-editorial grid gap-12 py-24 md:grid-cols-12 md:py-32">
         <div className="md:col-span-6">
           <p className="eyebrow text-stone">
             Newsletter
