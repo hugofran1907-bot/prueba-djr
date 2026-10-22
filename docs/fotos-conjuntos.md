@@ -12,8 +12,10 @@ Formatos válidos: `.png`, `.webp`, `.jpg`, `.jpeg`, `.avif`. Tamaño recomendad
 **1536 × 2048 px** (vertical 3:4, como piden los prompts). La tienda sirve cada foto al tamaño
 de pantalla con calidad 90 en AVIF/WebP, así que el original grande no ralentiza la web.
 
-> La foto de portada sigue el mismo sistema: sustituye `public/images/portada/portada.webp`
-> por una nueva con el mismo nombre.
+> Las fotos de portada están en `public/images/portada/` (`portada-negro-original.webp` y
+> `portada-blanco-bn.webp`). Para cambiarlas, sube las nuevas con **otro nombre** y actualiza
+> la ruta en `config/site.ts` (`heroContent.image` y `hoverImage`): Next.js guarda en caché las
+> imágenes por nombre y, con el mismo nombre, podría seguir mostrando la antigua.
 
 ## Qué número es cada foto y dónde sale
 

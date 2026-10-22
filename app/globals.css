@@ -329,3 +329,132 @@
     }
   }
 }
+
+/* ───────────────────────────── Movimientos de marca ─────────────────────────────
+   Lo que hace a DJR® distinta: la estrella, el cuarto oscuro, la percha, el sello,
+   el telón y la firma que se pinta. El puntero lo gestiona components/ui/BrandMotion.tsx.
+   Todo es transform, opacity o clip-path; con movimiento reducido no se mueve nada. */
+@layer components {
+  /* Estrella como cursor sobre las fotos (solo ratón y con BrandMotion activo). */
+  .star-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 70;
+    pointer-events: none;
+    color: #fff;
+    mix-blend-mode: difference;
+  }
+  .star-cursor > svg {
+    translate: -50% -50%;
+    opacity: 0;
+    scale: 0.4;
+    rotate: -45deg;
+    transition:
+      opacity 200ms var(--ease-out),
+      scale 300ms var(--ease-out),
+      rotate 400ms var(--ease-out);
+  }
+  .star-cursor[data-visible="true"] > svg {
+    opacity: 1;
+    scale: 1;
+    rotate: 0deg;
+  }
+  @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    .star-cursor-ready [data-star-cursor],
+    .star-cursor-ready [data-star-cursor] * {
+      cursor: none;
+    }
+  }
+
+  /* Cuarto oscuro: la capa en color se abre en círculo desde el cursor (--mx, --my). */
+  .darkroom-layer {
+    clip-path: circle(0 at var(--mx, 50%) var(--my, 50%));
+    transition:
+      clip-path 900ms var(--ease-editorial),
+      transform 1200ms var(--ease-editorial);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    [data-darkroom]:hover .darkroom-layer {
+      clip-path: circle(150% at var(--mx, 50%) var(--my, 50%));
+    }
+  }
+
+  /* Percha: la foto cuelga del borde superior y se inclina hacia el cursor (--tilt). */
+  .hanger {
+    transform: rotate(var(--tilt, 0deg));
+    transform-origin: 50% 0;
+    transition: transform 600ms var(--ease-out);
+  }
+
+  /* Sello del carrito: la estrella cae grande y girada y se asienta. */
+  [data-stamp] {
+    transition:
+      opacity 250ms var(--ease-out),
+      transform 500ms var(--ease-drawer);
+  }
+  @starting-style {
+    [data-stamp] {
+      opacity: 0;
+      transform: scale(2.6) rotate(-60deg);
+    }
+  }
+
+  /* Telón de navegación: negro con el monograma, se retira hacia arriba. */
+  .page-curtain {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-night);
+    pointer-events: none;
+    animation: curtain-up 700ms var(--ease-drawer) 120ms both;
+  }
+  .page-curtain > * {
+    animation: curtain-mark 700ms var(--ease-out) both;
+  }
+  @keyframes curtain-up {
+    to { transform: translateY(-100%); }
+  }
+  @keyframes curtain-mark {
+    from { opacity: 0; transform: scale(0.9); }
+    40% { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: translateY(-1.5rem); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .star-cursor,
+    .page-curtain {
+      display: none;
+    }
+    .hanger {
+      transform: none;
+    }
+  }
+
+  /* Firma del pie: el monograma se dibuja con su contorno (pathLength=1) y después se
+     rellena. Sustituye al revelado por defecto; sin JS o con movimiento reducido, se ve entero. */
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal-ready [data-reveal="draw"],
+    .reveal-ready [data-reveal="draw"]:not([data-revealed]) {
+      opacity: 1;
+      transform: none;
+    }
+    .reveal-ready [data-reveal="draw"] .logo-mark path {
+      stroke: currentColor;
+      stroke-width: 14; /* unidades del viewBox (2046 de ancho): ~3 px en la firma del pie */
+      stroke-dasharray: 1;
+      stroke-dashoffset: 0;
+      fill-opacity: 1;
+      transition:
+        stroke-dashoffset 2.4s var(--ease-editorial),
+        fill-opacity 0.9s var(--ease-out) 1.7s;
+    }
+    .reveal-ready [data-reveal="draw"]:not([data-revealed]) .logo-mark path {
+      stroke-dashoffset: 1;
+      fill-opacity: 0;
+    }
+  }
+}

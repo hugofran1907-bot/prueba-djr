@@ -8,10 +8,11 @@ function FooterColumn({ title, links }: { title: string; links: readonly { label
   return (
     <div>
       <h2 className="eyebrow text-navy/50">{title}</h2>
-      <ul className="mt-5 space-y-3">
+      {/* En móvil, más separación para que cada enlace tenga su zona de toque (after: en el enlace). */}
+      <ul className="mt-5 space-y-5 md:space-y-3">
         {(links ?? []).map((link) => (
           <li key={link.href}>
-            <Link href={link.href} className="link-underline text-sm text-navy/85 hover:text-navy">
+            <Link href={link.href} className="link-underline relative text-sm text-navy/85 after:absolute after:-inset-x-1 after:-inset-y-2.5 hover:text-navy md:after:-inset-y-1.5">
               {link.label}
             </Link>
           </li>
@@ -64,14 +65,14 @@ export function Footer() {
             <div>
               <h2 className="eyebrow text-navy/50">Síguenos</h2>
               {socialLinks.length > 0 ? (
-                <ul className="mt-5 space-y-3">
+                <ul className="mt-5 space-y-5 md:space-y-3">
                   {socialLinks.map((s) => (
                     <li key={s.label}>
                       <a
                         href={s.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="link-underline text-sm text-navy/85 hover:text-navy"
+                        className="link-underline relative text-sm text-navy/85 after:absolute after:-inset-x-1 after:-inset-y-2.5 hover:text-navy md:after:-inset-y-1.5"
                       >
                         {s.label}
                         <span className="sr-only"> (se abre en una pestaña nueva)</span>
@@ -96,7 +97,10 @@ export function Footer() {
 
         {/* Firma tipográfica a todo el ancho */}
         <div aria-hidden="true" className="mt-16 overflow-hidden border-t border-navy/15 pt-6 md:mt-20">
-          <Logo asLink={false} className="block text-[31vw] leading-[0.8] text-navy md:text-[26vw]" />
+          {/* El monograma se dibuja trazo a trazo y luego se rellena al llegar al pie (data-reveal="draw"). */}
+          <div data-reveal="draw">
+            <Logo asLink={false} className="block text-[31vw] leading-[0.8] text-navy md:text-[26vw]" />
+          </div>
         </div>
 
         <div className="mt-8 flex flex-col gap-3 text-xs text-navy/55 md:flex-row md:justify-between">

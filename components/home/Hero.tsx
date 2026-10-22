@@ -15,16 +15,17 @@ export function Hero() {
       className="grid pt-[6.25rem] md:min-h-svh md:grid-cols-2 md:pt-[7.25rem]"
     >
       {/* En móvil la foto es apaisada (4:3) para que el titular entre en la primera pantalla. */}
-      <div className="group/hero relative aspect-[4/3] overflow-hidden bg-cream md:aspect-auto">
+      <div data-star-cursor data-darkroom className="group/hero relative aspect-[4/3] overflow-hidden bg-cream md:aspect-auto">
         <Image
           src={image.url}
           alt={image.alt}
           fill
           priority
           sizes="(min-width: 768px) 50vw, 100vw"
-          className="photo-mono animate-[settle_1.8s_var(--ease-editorial)_both] object-cover object-[50%_12%] md:object-[50%_20%]"
+          className="animate-[settle_1.8s_var(--ease-editorial)_both] object-cover object-[50%_12%] md:object-[50%_20%]"
         />
-        {/* Segunda foto: fundido al pasar el ratón (solo ratón; en táctil no hay hover real). */}
+        {/* Cuarto oscuro: la segunda foto se revela desde el cursor (solo ratón). Las dos fotos de
+            portada ya vienen en blanco y negro: se muestran sin filtros para conservar su tono original. */}
         {hoverImage && (
           <Image
             src={hoverImage.url}
@@ -33,7 +34,7 @@ export function Hero() {
             fill
             loading="eager"
             sizes="(min-width: 768px) 50vw, 100vw"
-            className="photo-mono object-cover object-[50%_12%] opacity-0 transition-opacity duration-700 ease-editorial md:object-[50%_20%] [@media(hover:hover)_and_(pointer:fine)]:group-hover/hero:opacity-100"
+            className="darkroom-layer object-cover object-[50%_12%] md:object-[50%_20%]"
           />
         )}
       </div>

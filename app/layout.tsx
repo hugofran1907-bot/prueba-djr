@@ -7,6 +7,7 @@ import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { CartProvider } from "@/components/cart/CartContext";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { RevealObserver } from "@/components/ui/RevealObserver";
+import { BrandMotion } from "@/components/ui/BrandMotion";
 import { siteUrl } from "@/lib/utils";
 import "./globals.css";
 
@@ -66,6 +67,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <CartDrawer />
           <WhatsAppButton />
           <RevealObserver />
+          <BrandMotion />
         </CartProvider>
       </body>
     </html>

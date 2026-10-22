@@ -2,13 +2,14 @@ import Image from "next/image";
 import { brandContent } from "@/config/site";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Founders } from "@/components/home/Founders";
+import { ScrollWords } from "@/components/ui/ScrollWords";
 
 export function BrandStatement() {
   const { eyebrow, title, paragraphs, principles, image } = brandContent;
 
   return (
     <section aria-labelledby="marca-title" id="marca" className="container-editorial py-16 md:py-24">
-      <SectionHeading eyebrow={eyebrow} id="marca-title" title={title} className="max-w-5xl" />
+      <SectionHeading eyebrow={eyebrow} id="marca-title" title={<ScrollWords text={title} />} className="max-w-5xl" />
 
       <div className="mt-14 grid gap-12 md:mt-20 md:grid-cols-12 md:gap-8">
         <div data-reveal className="relative aspect-[4/5] md:col-span-5 md:col-start-1">

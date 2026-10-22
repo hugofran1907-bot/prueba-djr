@@ -19,6 +19,8 @@ export function ProductCard({
   className,
 }: Props) {
   const image = product.featuredImage;
+  // Segunda foto para el hover (p. ej. la espalda de la prenda), si existe.
+  const hoverImage = product.images.find((img) => img.url !== image?.url) ?? null;
   const isNew = product.tags.includes("nuevo");
 
   // Fila de tallas en línea (DESIGN.md · Size Selector): todas visibles, las agotadas atenuadas.
@@ -31,8 +33,10 @@ export function ProductCard({
   }));
 
   return (
-    <article className={cn("group relative", className)}>
-      <div className="relative aspect-[4/5] overflow-hidden rounded-media bg-cream">
+    // data-star-cursor, data-darkroom y data-tilt: movimientos de marca (components/ui/BrandMotion.tsx).
+    // Van en el <article> porque el enlace que cubre la tarjeta es quien recibe el puntero.
+    <article data-star-cursor data-darkroom data-tilt className={cn("group relative", className)}>
+      <div className="hanger relative aspect-[4/5] overflow-hidden rounded-media bg-cream">
         {image ? (
           <Image
             src={image.url}
@@ -40,12 +44,23 @@ export function ProductCard({
             fill
             priority={priority}
             sizes={sizes}
-            className="photo-mono object-cover transition-[transform,filter] duration-[1200ms] ease-editorial group-hover:scale-[1.04] group-hover:grayscale-0"
+            className="photo-mono object-cover transition-transform duration-[1200ms] ease-editorial group-hover:scale-[1.04]"
           />
         ) : (
           <div className="flex h-full items-center justify-center font-serif text-4xl text-navy/20" aria-hidden="true">
             DJR®
           </div>
+        )}
+        {/* Cuarto oscuro: la segunda foto (o la misma) en color se revela desde el cursor. Solo con ratón. */}
+        {image && (
+          <Image
+            src={(hoverImage ?? image).url}
+            alt=""
+            aria-hidden="true"
+            fill
+            sizes={sizes}
+            className="darkroom-layer object-cover transition-transform duration-[1200ms] ease-editorial group-hover:scale-[1.04]"
+          />
         )}
 
         {isNew && (

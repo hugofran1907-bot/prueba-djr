@@ -15,7 +15,8 @@ export function SizeGuide({ sizes }: { sizes?: string[] }) {
         type="button"
         onClick={() => ref.current?.showModal()}
         aria-haspopup="dialog"
-        className="text-xs text-navy underline underline-offset-4 hover:text-burgundy"
+        // after: zona de toque invisible de 44 px de alto sin cambiar el aspecto del enlace.
+        className="relative text-xs text-navy underline underline-offset-4 after:absolute after:-inset-x-2 after:-inset-y-3.5 hover:text-burgundy"
       >
         Guía de tallas
       </button>

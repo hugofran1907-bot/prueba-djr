@@ -25,7 +25,7 @@ export default async function OpengraphImage() {
           alt=""
           width={560}
           height={630}
-          style={{ width: 560, height: 630, objectFit: "cover", objectPosition: "50% 20%", filter: "grayscale(1)" }}
+          style={{ width: 560, height: 630, objectFit: "cover", objectPosition: "50% 20%" }}
         />
         <div
           style={{

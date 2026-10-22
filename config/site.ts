@@ -11,12 +11,12 @@ export const siteConfig = {
 
   /**
    * Logotipo. null → se muestra «DJR®» en texto.
-   * Para usar el monograma: guarda el archivo en public/images/marca/ (SVG en BLANCO o
-   * claro, con fondo transparente, porque la web es oscura) y pon aquí su ruta y su
-   * proporción, por ejemplo: { src: "/images/marca/logo.svg", width: 120, height: 90 }.
-   * Aparece en la cabecera, el menú móvil y la firma grande del pie.
+   * Con valor, la web pinta el monograma vectorial en línea (components/layout/logo-mark.ts),
+   * que toma el color del texto. Aquí queda la ruta del archivo para usos externos:
+   * logo-djr.svg (blanco, para fondos oscuros) y logo-djr-negro.svg (para fondos claros).
+   * Aparece en la cabecera, el menú móvil, el telón de navegación y la firma grande del pie.
    */
-  logo: { src: "/images/marca/logo-djr.png", width: 2128, height: 1789 } as {
+  logo: { src: "/images/marca/logo-djr.svg", width: 2046, height: 1707 } as {
     src: string;
     width: number;
     height: number;
@@ -88,12 +88,12 @@ export const heroContent = {
   cta: { label: "Comprar la Colección 01", href: "/colecciones/todo" },
   secondaryCta: { label: "Novedades", href: "/#novedades" },
   image: {
-    url: "/images/portada/portada.webp",
+    url: "/images/portada/portada-negro-original.webp",
     alt: "Chico y chica con camiseta negra DJR y pantalón negro de pierna ancha, apoyados en una pared negra",
   },
   /** Foto que aparece al pasar el ratón por la de portada (mismo encuadre). null para desactivarlo. */
   hoverImage: {
-    url: "/images/portada/portada-blanco.webp",
+    url: "/images/portada/portada-blanco-bn.webp",
     alt: "Los mismos modelos con camiseta blanca DJR y pantalón blanco de pierna ancha",
   } as { url: string; alt: string } | null,
 };
