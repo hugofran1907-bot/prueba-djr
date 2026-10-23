@@ -4,6 +4,12 @@
    Los nombres son históricos y ahora describen un PAPEL, no un color:
    white = lienzo (negro), navy = tinta (blanco roto), cream = panel (carbón),
    burgundy = acento (gris claro), night = secciones más profundas (pie, avisos). */
+/* Pantalla de escritorio de verdad: ancha y con altura. Un móvil en horizontal es ancho pero bajo
+   (≈375 px) y debe comportarse como móvil (debe coincidir con MEDIA.desktop de lib/motion.ts). */
+@custom-variant tall (@media (min-width: 48rem) and (min-height: 31.25rem));
+/* Móvil en horizontal: ancho pero bajo. */
+@custom-variant short (@media (min-width: 48rem) and (max-height: 31.2rem));
+
 @theme {
   --color-night: #000000; /* barra de avisos, pie, menú móvil */
   --color-white: #0a0a0a; /* lienzo de la página */
@@ -366,6 +372,12 @@
     animation: rise 1.1s var(--ease-editorial) 0.3s backwards;
   }
 
+  /* La X gris del navegador en los buscadores no pega con la estética: el panel ya tiene su cierre. */
+  input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
   /* ── Tipografía cinética (components/home/KineticType.tsx) ── */
   .kinetic-row {
     display: flex;
@@ -424,6 +436,19 @@
     overflow: hidden;
     border-radius: var(--radius-media);
     background: var(--color-cream);
+  }
+  /* Móvil en horizontal: foto al lado del texto y a la altura de la pantalla, no varias pantallas de foto. */
+  @variant short {
+    .story-item {
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 2rem;
+    }
+    .story-media {
+      order: 0;
+      aspect-ratio: auto;
+      height: 75svh;
+    }
   }
   .story-mask {
     display: block;
@@ -509,6 +534,11 @@
     transition:
       clip-path 900ms var(--ease-editorial),
       transform 1200ms var(--ease-editorial);
+  }
+  /* Táctil: lo activa el Hero al tocar o con su ciclo automático (useTouchDarkroom). */
+  [data-darkroom][data-revealed] .darkroom-layer {
+    clip-path: circle(150% at var(--mx, 50%) var(--my, 50%));
+    transition-duration: 1400ms;
   }
   @media (hover: hover) and (pointer: fine) {
     [data-darkroom]:hover .darkroom-layer {

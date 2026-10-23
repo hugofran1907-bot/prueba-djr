@@ -179,7 +179,7 @@ export default async function ProductPage({ params }: Props) {
         <nav aria-label="Ruta de navegación" className="eyebrow mb-8 text-stone">
           <ol className="flex flex-wrap gap-2">
             <li>
-              <Link href="/" className="hover:text-navy">
+              <Link href="/" className="relative after:absolute after:-inset-x-2 after:-inset-y-3.5 hover:text-navy">
                 Inicio
               </Link>
             </li>
@@ -187,7 +187,7 @@ export default async function ProductPage({ params }: Props) {
               <>
                 <li aria-hidden="true">/</li>
                 <li>
-                  <Link href={`/colecciones/${product.category.handle}`} className="hover:text-navy">
+                  <Link href={`/colecciones/${product.category.handle}`} className="relative after:absolute after:-inset-x-2 after:-inset-y-3.5 hover:text-navy">
                     {product.category.title}
                   </Link>
                 </li>

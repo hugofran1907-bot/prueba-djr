@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { heroContent } from "@/config/site";
 import { ButtonLink } from "@/components/ui/Button";
 import { EASE, MEDIA, gsap, useGSAP } from "@/lib/motion";
@@ -33,10 +33,48 @@ function useVideoAllowed(enabled: boolean) {
  *  - Vídeo opcional (config/site.ts → heroContent.video): solo en escritorio; la foto
  *    queda debajo como alternativa para móvil, conexiones lentas o si el vídeo no arranca.
  */
+/**
+ * Táctil (sin ratón no hay hover): la segunda foto se alterna sola cada pocos segundos y,
+ * al tocar la foto, se revela o se oculta desde el dedo. Los botones y enlaces no cuentan.
+ */
+function useTouchDarkroom(root: RefObject<HTMLElement | null>, enabled: boolean) {
+  useEffect(() => {
+    const el = root.current;
+    if (!el || !enabled || window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const toggle = (x?: number, y?: number) => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", `${x === undefined ? r.width / 2 : x - r.left}px`);
+      el.style.setProperty("--my", `${y === undefined ? r.height * 0.4 : y - r.top}px`);
+      el.toggleAttribute("data-revealed");
+    };
+
+    let timer = 0;
+    const schedule = () => {
+      window.clearInterval(timer);
+      if (!reduced) timer = window.setInterval(() => toggle(), 4500);
+    };
+    const onClick = (e: MouseEvent) => {
+      if ((e.target as Element).closest("a, button")) return;
+      toggle(e.clientX, e.clientY);
+      schedule(); // tras un toque, el ciclo automático vuelve a empezar desde ahí
+    };
+
+    schedule();
+    el.addEventListener("click", onClick);
+    return () => {
+      window.clearInterval(timer);
+      el.removeEventListener("click", onClick);
+    };
+  }, [root, enabled]);
+}
+
 export function Hero() {
   const { eyebrow, title, text, valueProp, cta, secondaryCta, image, hoverImage, video } = heroContent;
   const root = useRef<HTMLElement>(null);
   const showVideo = useVideoAllowed(Boolean(video));
+  useTouchDarkroom(root, Boolean(hoverImage));
 
   useGSAP(
     () => {
@@ -84,8 +122,9 @@ export function Hero() {
       aria-labelledby="hero-title"
       data-darkroom
       // Móvil: alto mínimo de pantalla, pero crece si el texto no cabe (en móviles pequeños el
-      // último botón quedaba cortado). Escritorio: alto fijo, porque GSAP fija la sección con él.
-      className="hero-cine relative isolate min-h-svh overflow-hidden bg-night text-navy md:h-svh md:min-h-[34rem]"
+      // último botón quedaba cortado), también con el móvil en horizontal. Escritorio (tall): alto fijo,
+      // porque GSAP fija la sección con él.
+      className="hero-cine relative isolate min-h-svh overflow-hidden bg-night text-navy tall:h-svh tall:min-h-[34rem]"
     >
       {/* La foto empieza bajo la cabecera fija (avisos + barra) para no cortar las caras. */}
       <div
@@ -136,7 +175,7 @@ export function Hero() {
         className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-t from-night via-night/30 to-night/50"
       />
 
-      <div className="container-editorial flex min-h-svh flex-col justify-end pt-28 pb-6 md:h-full md:min-h-0 md:pb-12">
+      <div className="container-editorial flex min-h-svh flex-col justify-end pt-28 pb-6 md:pb-12 tall:h-full tall:min-h-0">
         <p className="eyebrow hero-rise text-navy/75">{eyebrow}</p>
 
         <h1

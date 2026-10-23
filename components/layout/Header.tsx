@@ -1,8 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { siteConfig } from "@/config/site";
 import { activeSocial } from "@/config/store";
 import { Logo } from "@/components/layout/Logo";
@@ -39,12 +40,37 @@ function CloseIcon() {
 const iconButton =
   "inline-flex size-11 items-center justify-center transition-[opacity,transform] duration-150 hover:opacity-60 active:scale-[0.94]";
 
+type Suggestion = { handle: string; title: string; price: string; image: string | null };
+
+/** Sugerencias mientras se escribe (app/api/buscar): espera 200 ms y cancela la petición anterior. */
+function useSearchSuggestions(query: string) {
+  const [results, setResults] = useState<Suggestion[]>([]);
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2) return; // el panel ya no muestra sugerencias por debajo de 2 letras
+    const controller = new AbortController();
+    const timer = window.setTimeout(() => {
+      fetch(`/api/buscar?q=${encodeURIComponent(q)}`, { signal: controller.signal })
+        .then((r) => r.json())
+        .then((data: { results: Suggestion[] }) => setResults(data.results))
+        .catch(() => {});
+    }, 200);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [query]);
+  return results;
+}
+
 export function Header() {
   const pathname = usePathname();
   const menuRef = useRef<HTMLDialogElement>(null);
   const searchRef = useRef<HTMLDialogElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const { count, openCart } = useCart();
+  const [query, setQuery] = useState("");
+  const suggestions = useSearchSuggestions(query);
 
   // Cierra los diálogos al cambiar de ruta.
   useEffect(() => {
@@ -206,6 +232,9 @@ export function Header() {
               type="search"
               required
               autoComplete="off"
+              enterKeyHint="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
               placeholder="Camisetas, sudaderas, pantalones…"
               className="w-full bg-transparent font-serif text-3xl placeholder:text-navy/35 focus:outline-none md:text-5xl"
             />
@@ -213,6 +242,41 @@ export function Header() {
               <SearchIcon />
             </button>
           </form>
+
+          {query.trim().length >= 2 && (
+            <div aria-live="polite" className="mt-6 md:mt-8">
+              {suggestions.length > 0 ? (
+                <>
+                  <ul className="grid gap-2 md:grid-cols-2 md:gap-4">
+                    {suggestions.map((s) => (
+                      <li key={s.handle}>
+                        <Link
+                          href={`/productos/${s.handle}`}
+                          className="flex items-center gap-4 rounded-[var(--radius-media)] p-2 transition-colors duration-200 hover:bg-white active:bg-white"
+                        >
+                          <span className="relative size-16 shrink-0 overflow-hidden rounded-[calc(var(--radius-media)*0.6)] bg-white">
+                            {s.image && <Image src={s.image} alt="" fill sizes="64px" className="object-cover" />}
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block truncate text-sm font-medium uppercase tracking-[0.06em]">{s.title}</span>
+                            <span className="mt-1 block text-sm text-navy/60">{s.price}</span>
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    href={`/buscar?q=${encodeURIComponent(query.trim())}`}
+                    className="link-underline relative mt-5 inline-block text-xs font-medium uppercase tracking-[0.08em] after:absolute after:-inset-x-2 after:-inset-y-3.5"
+                  >
+                    Ver todos los resultados
+                  </Link>
+                </>
+              ) : (
+                <p className="text-sm text-navy/60">Sin coincidencias por ahora. Prueba con camiseta, sudadera o pantalón.</p>
+              )}
+            </div>
+          )}
         </div>
       </dialog>
     </>

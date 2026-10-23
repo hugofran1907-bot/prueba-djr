@@ -33,10 +33,11 @@ export const DURATION = { fast: 0.35, base: 0.8, slow: 1.4 } as const;
 
 /** Consultas de gsap.matchMedia: cada bloque se revierte solo cuando deja de cumplirse. */
 export const MEDIA = {
-  /** Escritorio con movimiento: escenas fijadas y scrub completo. */
-  desktop: "(min-width: 768px) and (prefers-reduced-motion: no-preference)",
-  /** Móvil con movimiento: versiones ligeras, sin fijar secciones. */
-  mobile: "(max-width: 767px) and (prefers-reduced-motion: no-preference)",
+  /** Escritorio con movimiento: escenas fijadas y scrub completo (variante `tall:` en globals.css). */
+  desktop: "(min-width: 768px) and (min-height: 500px) and (prefers-reduced-motion: no-preference)",
+  /** Móvil con movimiento (también en horizontal, que es ancho pero bajo): versiones ligeras, sin fijar secciones. */
+  mobile:
+    "(max-width: 767px) and (prefers-reduced-motion: no-preference), (max-height: 499px) and (prefers-reduced-motion: no-preference)",
   /** Cualquier tamaño con movimiento. */
   motion: "(prefers-reduced-motion: no-preference)",
 } as const;

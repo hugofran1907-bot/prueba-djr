@@ -142,7 +142,7 @@ export function ProductGallery({
             <Morph key={i} name={i === 0 && !isDesktop ? morphName : undefined}>
               <div
                 data-fly-source
-                className="relative aspect-[4/5] w-full shrink-0 snap-center bg-cream-deep"
+                className="relative aspect-[4/5] w-full shrink-0 snap-center bg-cream-deep short:h-[78svh] short:w-auto"
                 role={multiple ? "group" : undefined}
                 aria-roledescription={multiple ? "diapositiva" : undefined}
                 aria-label={multiple ? `${i + 1} de ${media.length}` : undefined}
