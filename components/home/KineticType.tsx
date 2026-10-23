@@ -26,7 +26,12 @@ export function KineticType({ image }: { image: string }) {
         const scrollTrigger = { trigger: root.current, start: "top bottom", end: "bottom top", scrub: 0.5 };
         gsap.fromTo("[data-kinetic='a']", { xPercent: 0 }, { xPercent: -30, ease: "none", scrollTrigger });
         gsap.fromTo("[data-kinetic='b']", { xPercent: -30 }, { xPercent: 0, ease: "none", scrollTrigger });
-        // El patrón se desliza dentro de las letras a otra velocidad: sensación de profundidad.
+      });
+      // El patrón se desliza dentro de las letras a otra velocidad: sensación de profundidad.
+      // Solo en escritorio: mover el fondo repinta las letras en cada fotograma del scroll, y en
+      // móvil basta con el desplazamiento de las filas (transform, que no repinta).
+      mm.add(MEDIA.desktop, () => {
+        const scrollTrigger = { trigger: root.current, start: "top bottom", end: "bottom top", scrub: 0.5 };
         gsap.fromTo(
           "[data-kinetic='b']",
           { backgroundPosition: "50% 0%" },

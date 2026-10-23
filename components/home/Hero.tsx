@@ -50,21 +50,31 @@ function useTouchDarkroom(root: RefObject<HTMLElement | null>, enabled: boolean)
       el.toggleAttribute("data-revealed");
     };
 
+    // El ciclo automático solo corre con la portada a la vista y la pestaña activa: fuera de
+    // pantalla sería una animación de pantalla completa que nadie ve y gasta batería.
     let timer = 0;
+    let onScreen = true;
     const schedule = () => {
       window.clearInterval(timer);
-      if (!reduced) timer = window.setInterval(() => toggle(), 4500);
+      if (!reduced && onScreen && !document.hidden) timer = window.setInterval(() => toggle(), 4500);
     };
     const onClick = (e: MouseEvent) => {
       if ((e.target as Element).closest("a, button")) return;
       toggle(e.clientX, e.clientY);
       schedule(); // tras un toque, el ciclo automático vuelve a empezar desde ahí
     };
+    const observer = new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      schedule();
+    });
 
-    schedule();
+    observer.observe(el);
+    document.addEventListener("visibilitychange", schedule);
     el.addEventListener("click", onClick);
     return () => {
       window.clearInterval(timer);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", schedule);
       el.removeEventListener("click", onClick);
     };
   }, [root, enabled]);

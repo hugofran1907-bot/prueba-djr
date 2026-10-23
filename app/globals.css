@@ -476,7 +476,8 @@
   .story.is-pinned .story-media {
     order: 0;
     justify-self: center;
-    height: min(calc(100svh - 11rem), 46rem);
+    /* Alto de pantalla, pero nunca más ancha que su columna (en tablet se salía por la derecha). */
+    width: min(100%, calc(min(100svh - 11rem, 46rem) * 3 / 4));
     will-change: clip-path, transform;
   }
   .story.is-pinned .story-media img {
@@ -509,6 +510,14 @@
   }
   .card-3d[data-tilting] .card-3d-glare {
     opacity: 1;
+  }
+  /* Táctil (sin inclinación ni hover): la foto se hunde un poco al tocar la tarjeta, como
+     respuesta inmediata al dedo antes de abrir el producto. Solo transform, en un toque. */
+  @media (hover: none) and (prefers-reduced-motion: no-preference) {
+    .card-3d:active .card-3d-media {
+      transform: scale(0.97);
+      transition-duration: 120ms;
+    }
   }
 
   /* ── Botones magnéticos (Button.tsx): el botón y, un poco más, su contenido ── */
@@ -583,6 +592,19 @@
   .page-curtain-title {
     display: block;
     animation: curtain-title 1.2s var(--ease-editorial) 60ms both;
+  }
+  /* Móvil: el mismo telón, más corto, para que el contenido llegue antes (≈1 s en vez de ≈1,4 s). */
+  @media (max-width: 47.99rem) {
+    .page-curtain {
+      animation-duration: 700ms;
+      animation-delay: 340ms;
+    }
+    .page-curtain-mark {
+      animation-duration: 0.85s;
+    }
+    .page-curtain-title {
+      animation-duration: 0.9s;
+    }
   }
   @keyframes curtain-out {
     to { clip-path: inset(0 0 100% 0); }

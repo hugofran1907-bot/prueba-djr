@@ -18,6 +18,14 @@ const clamp = (v: number, max: number) => Math.max(-max, Math.min(max, v));
  * No sustituye el cursor del sistema.
  */
 export function BrandMotion() {
+  // iOS Safari solo aplica :active (respuesta al toque de tarjetas y botones) si hay algún
+  // listener de touchstart en la página; este no hace nada más.
+  useEffect(() => {
+    const noop = () => {};
+    document.addEventListener("touchstart", noop, { passive: true });
+    return () => document.removeEventListener("touchstart", noop);
+  }, []);
+
   useEffect(() => {
     if (!window.matchMedia(FINE_POINTER).matches) return;
     const reduced = window.matchMedia(REDUCED_MOTION);

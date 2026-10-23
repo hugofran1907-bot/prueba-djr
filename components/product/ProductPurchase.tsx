@@ -415,7 +415,7 @@ export function ProductPurchase({
         aria-hidden={!stickyVisible}
         inert={!stickyVisible}
         className={cn(
-          "fixed inset-x-0 bottom-0 z-40 border-t border-navy/15 bg-cream/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md transition-transform duration-500 ease-editorial lg:hidden",
+          "fixed inset-x-0 bottom-0 z-40 border-t border-navy/15 bg-cream pb-[env(safe-area-inset-bottom)] transition-transform duration-500 ease-editorial lg:hidden",
           stickyVisible ? "translate-y-0" : "translate-y-full",
         )}
       >

@@ -20,6 +20,21 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
 // pantalla. Sin esto, ScrollTrigger lo recalcula todo en cada cambio y la página da saltos.
 ScrollTrigger.config({ ignoreMobileResize: true });
 
+// Las secciones que llegan después (Novedades se carga en streaming, imágenes, fuentes) alargan
+// la página cuando las animaciones de scroll ya han medido sus posiciones: se disparaban antes de
+// tiempo. Cuando cambia el alto de la página, se vuelven a medir (agrupado, una vez por ráfaga).
+if (typeof window !== "undefined" && "ResizeObserver" in window) {
+  let lastHeight = 0;
+  let timer = 0;
+  new ResizeObserver(([entry]) => {
+    const height = Math.round(entry.contentRect.height);
+    if (height === lastHeight) return;
+    lastHeight = height;
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => ScrollTrigger.refresh(), 200);
+  }).observe(document.body);
+}
+
 export const EASE = {
   /** Entradas y revelados: arranque rápido, asentamiento largo. */
   out: "expo.out",

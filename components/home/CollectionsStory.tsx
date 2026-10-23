@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRef } from "react";
 import type { Collection } from "@/lib/types";
 import { ButtonLink } from "@/components/ui/Button";
-import { MEDIA, gsap, useGSAP } from "@/lib/motion";
+import { EASE, MEDIA, gsap, useGSAP } from "@/lib/motion";
 
 /**
  * Colecciones contadas con el scroll.
@@ -70,6 +70,8 @@ export function CollectionsStory({ collections }: { collections: Collection[] })
       });
 
       // Móvil: cada foto se descubre con la misma máscara al entrar, sin fijar la sección.
+      // Se reproduce una vez (no atada al scroll): animar la máscara en cada fotograma del
+      // scroll repintaba la foto entera y en móviles modestos se notaba a tirones.
       mm.add(MEDIA.mobile, () => {
         gsap.utils.toArray<HTMLElement>("[data-story-media]").forEach((m) => {
           gsap.fromTo(
@@ -77,8 +79,9 @@ export function CollectionsStory({ collections }: { collections: Collection[] })
             { clipPath: "inset(18% 8% 0% 8% round 24px)" },
             {
               clipPath: "inset(0% 0% 0% 0% round 14px)",
-              ease: "none",
-              scrollTrigger: { trigger: m, start: "top 95%", end: "top 45%", scrub: 0.6 },
+              duration: 1.1,
+              ease: EASE.out,
+              scrollTrigger: { trigger: m, start: "top 88%", once: true },
             },
           );
         });
