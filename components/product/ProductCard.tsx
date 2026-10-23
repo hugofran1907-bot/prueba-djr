@@ -94,6 +94,8 @@ export function ProductCard({
             className="after:absolute after:inset-0"
           >
             {product.title}
+            {/* Los colores comparten nombre (Tee 001…): la foto ya lo muestra, el lector de pantalla lo lee. */}
+            {product.color && <span className="sr-only"> · {product.color}</span>}
           </Link>
         </h3>
         {sizeCodes.length > 0 && (

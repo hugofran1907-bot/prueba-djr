@@ -29,6 +29,7 @@ export async function NewArrivals() {
 
   return (
     <>
+      <p className="eyebrow mb-4 text-navy">DROP 001</p>
       {isUsingMockData() && <DemoNotice className="mb-8" />}
       {/* Catálogo denso de 4 columnas, como un lookbook. */}
       <ProductGrid products={products} priorityCount={2} />

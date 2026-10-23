@@ -38,7 +38,7 @@ export default async function OpengraphImage() {
           }}
         >
           <div style={{ display: "flex", fontSize: 18, letterSpacing: 3, textTransform: "uppercase", color: "#a3a3a3" }}>
-            {`Colección 01 · ${season}`}
+            {`DROP 001 · ${season}`}
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ display: "flex", alignItems: "flex-start", fontSize: 200, lineHeight: 0.9, letterSpacing: -6 }}>

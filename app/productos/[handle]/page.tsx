@@ -11,7 +11,7 @@ import {
   productFallbacks,
   shippingSummary,
 } from "@/config/store";
-import { getCompleteTheLook, getProduct, getRelatedProducts, isUsingMockData } from "@/lib/shopify";
+import { getColorSiblings, getCompleteTheLook, getProduct, getRelatedProducts, isUsingMockData } from "@/lib/shopify";
 import type { Product } from "@/lib/types";
 import { DemoNotice } from "@/components/product/DemoNotice";
 import { ProductGallery } from "@/components/product/ProductGallery";
@@ -39,13 +39,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product || product === "error") return { title: "Producto" };
 
   return {
-    title: product.seo.title || product.title,
+    title: product.seo.title || fullName(product),
     description: product.seo.description || product.description,
     alternates: { canonical: `/productos/${product.handle}` },
     openGraph: product.featuredImage
       ? { images: [{ url: product.featuredImage.url, alt: product.featuredImage.altText }] }
       : undefined,
   };
+}
+
+/** Nombre con el color («Tee 001 · Negro»): los colores de una prenda comparten nombre. */
+function fullName(product: Product) {
+  return product.color ? `${product.title} · ${product.color}` : product.title;
 }
 
 /** Bloques de texto etiquetados dentro de un acordeón. */
@@ -102,14 +107,18 @@ export default async function ProductPage({ params }: Props) {
   if (!product) notFound();
 
   const mock = isUsingMockData();
-  const { look, related } = await loadRelated(product);
+  const [{ look, related }, siblings] = await Promise.all([
+    loadRelated(product),
+    getColorSiblings(product).catch(() => []),
+  ]);
+  const colors = siblings.map((p) => ({ handle: p.handle, color: p.color! }));
   const d = product.details;
 
   // Solo se publican datos estructurados con precios reales, nunca con los de demostración.
   const productJsonLd = !mock && {
     "@context": "https://schema.org",
     "@type": "Product",
-    name: product.title,
+    name: fullName(product),
     description: product.description,
     image: product.images.map((img) => img.url),
     offers: {
@@ -195,7 +204,7 @@ export default async function ProductPage({ params }: Props) {
             )}
             <li aria-hidden="true">/</li>
             <li aria-current="page" className="text-navy">
-              {product.title}
+              {fullName(product)}
             </li>
           </ol>
         </nav>
@@ -206,7 +215,7 @@ export default async function ProductPage({ params }: Props) {
             <ProductGallery
               images={product.images}
               video={product.video}
-              title={product.title}
+              title={fullName(product)}
               morphName={productMorphName(product.handle)}
             />
           </div>
@@ -217,7 +226,7 @@ export default async function ProductPage({ params }: Props) {
               <h1 className="mt-4 font-serif text-5xl leading-none md:text-6xl">{product.title}</h1>
               {mock && <DemoNotice className="mt-5" />}
 
-              <ProductPurchase product={product}>
+              <ProductPurchase product={product} colors={colors}>
                 <Accordion items={accordion} name="detalles-producto" className="mt-10" />
               </ProductPurchase>
             </div>

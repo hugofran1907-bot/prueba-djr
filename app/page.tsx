@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { promoBanner, siteConfig } from "@/config/site";
+import { siteConfig } from "@/config/site";
 import { activeSocial } from "@/config/store";
 import { Hero } from "@/components/home/Hero";
 import { KineticType } from "@/components/home/KineticType";
@@ -35,7 +35,7 @@ export default function HomePage() {
       {faqLd && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />}
 
       <Hero />
-      <KineticType image={promoBanner.image.url} />
+      <KineticType image="/images/marca/patron-djr.jpg" />
 
       <section aria-labelledby="novedades-title" id="novedades" className="container-editorial pt-16 md:pt-24">
         <SectionHeading

@@ -40,15 +40,15 @@ export const ALL_PRODUCTS_HANDLE = "todo";
 const allProductsCollection: Collection = {
   id: "virtual-todo",
   handle: ALL_PRODUCTS_HANDLE,
-  title: "Colección 01",
-  description: "Todas las piezas de la colección.",
+  title: "DROP 001",
+  description: "Todas las piezas del drop.",
   image: {
     url: heroContent.image.url,
     altText: heroContent.image.alt,
     width: 2400,
     height: 1600,
   },
-  seo: { title: "Toda la colección", description: "Camisetas, sudaderas y pantalones de la Colección 01 de DJR®." },
+  seo: { title: "Toda la colección", description: "Camisetas, sudaderas y pantalones del DROP 001 de DJR®." },
 };
 
 /* ───────────────────────── Cliente Storefront ───────────────────────── */
@@ -320,6 +320,18 @@ export async function getCollectionProducts({
 export async function getProductsByHandles(handles: string[]): Promise<Product[]> {
   const results = await Promise.all(handles.map(getProduct));
   return results.filter((p): p is Product => p !== null);
+}
+
+/**
+ * Los otros colores de la misma prenda: productos con el mismo nombre (Tee 001…) y color.
+ * Incluye el propio producto. Con un solo color devuelve una lista vacía.
+ */
+export async function getColorSiblings(product: Product): Promise<Product[]> {
+  if (!product.color) return [];
+  const candidates = await getProducts({ query: USE_MOCK_DATA ? product.title : `title:"${product.title}"`, first: 20 });
+  const siblings = candidates.filter((p) => p.title === product.title && p.color);
+  if (!siblings.some((p) => p.handle === product.handle)) siblings.unshift(product);
+  return siblings.length > 1 ? siblings : [];
 }
 
 /** «Completa el look»: productos configurados en el propio producto. */

@@ -50,7 +50,7 @@ function sizeVariants(productId: string, amount: string, soldOut: string[] = [])
 
 const EMPTY_DETAILS = { benefit: null, detail: null, usage: null, care: null, materials: null, fit: null };
 
-type MockInput = Pick<Product, "id" | "handle" | "title" | "description" | "tags" | "productType" | "createdAt" | "images"> & {
+type MockInput = Pick<Product, "id" | "handle" | "title" | "color" | "description" | "tags" | "productType" | "createdAt" | "images"> & {
   price: string;
   soldOut?: string[];
   category: Product["category"];
@@ -117,7 +117,8 @@ export const mockProducts: Product[] = [
   product({
     id: "mock-product-1",
     handle: "camiseta-negra",
-    title: "Camiseta Negra",
+    title: "Tee 001",
+    color: "Negro",
     description: camiseta("negro"),
     tags: ["nuevo", "camisetas"],
     productType: "Camiseta",
@@ -134,7 +135,8 @@ export const mockProducts: Product[] = [
   product({
     id: "mock-product-2",
     handle: "camiseta-blanca",
-    title: "Camiseta Blanca",
+    title: "Tee 001",
+    color: "Blanco",
     description: camiseta("blanco"),
     tags: ["nuevo", "camisetas"],
     productType: "Camiseta",
@@ -150,7 +152,8 @@ export const mockProducts: Product[] = [
   product({
     id: "mock-product-3",
     handle: "camiseta-gris",
-    title: "Camiseta Gris",
+    title: "Tee 001",
+    color: "Gris",
     description: camiseta("gris"),
     tags: ["nuevo", "camisetas"],
     productType: "Camiseta",
@@ -166,7 +169,8 @@ export const mockProducts: Product[] = [
   product({
     id: "mock-product-4",
     handle: "sudadera-negra",
-    title: "Sudadera Negra",
+    title: "Crewneck 001",
+    color: "Negro",
     description: sudadera("negro"),
     tags: ["nuevo", "sudaderas"],
     productType: "Sudadera",
@@ -183,7 +187,8 @@ export const mockProducts: Product[] = [
   product({
     id: "mock-product-5",
     handle: "sudadera-gris",
-    title: "Sudadera Gris",
+    title: "Crewneck 001",
+    color: "Gris",
     description: sudadera("gris"),
     tags: ["nuevo", "sudaderas"],
     productType: "Sudadera",
@@ -196,7 +201,8 @@ export const mockProducts: Product[] = [
   product({
     id: "mock-product-6",
     handle: "sudadera-blanca",
-    title: "Sudadera Blanca",
+    title: "Crewneck 001",
+    color: "Blanco",
     description: sudadera("blanco"),
     tags: ["nuevo", "sudaderas"],
     productType: "Sudadera",
@@ -209,7 +215,8 @@ export const mockProducts: Product[] = [
   product({
     id: "mock-product-7",
     handle: "pantalon-negro",
-    title: "Pantalón Negro",
+    title: "Sweatpants 001",
+    color: "Negro",
     description: pantalon("negro"),
     tags: ["nuevo", "pantalones"],
     productType: "Pantalón",
@@ -227,7 +234,8 @@ export const mockProducts: Product[] = [
   product({
     id: "mock-product-8",
     handle: "pantalon-blanco",
-    title: "Pantalón Blanco",
+    title: "Sweatpants 001",
+    color: "Blanco",
     description: pantalon("blanco"),
     tags: ["nuevo", "pantalones"],
     productType: "Pantalón",
@@ -243,7 +251,8 @@ export const mockProducts: Product[] = [
   product({
     id: "mock-product-9",
     handle: "pantalon-gris",
-    title: "Pantalón Gris",
+    title: "Sweatpants 001",
+    color: "Gris",
     description: pantalon("gris"),
     tags: ["nuevo", "pantalones"],
     productType: "Pantalón",

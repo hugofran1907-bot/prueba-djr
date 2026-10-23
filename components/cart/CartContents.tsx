@@ -78,7 +78,7 @@ export function CartContents({ onNavigate, variant = "drawer" }: { onNavigate?: 
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-16 text-center">
         <p className="font-serif text-3xl">Tu carrito está vacío.</p>
-        <p className="mt-3 text-sm text-stone">Descubre la Colección 01.</p>
+        <p className="mt-3 text-sm text-stone">Descubre el DROP 001.</p>
         <ButtonLink href="/colecciones/todo" arrow className="mt-8" onClick={onNavigate}>
           Ver la colección
         </ButtonLink>

@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
+import { consumeKeepScroll } from "@/lib/scroll-intent";
 
 /**
  * Cada cambio de página empieza arriba del todo (scroll 0), también al volver atrás.
@@ -10,7 +11,8 @@ import { useEffect } from "react";
  * fijadas con GSAP y la transición entre páginas despistan esa comprobación: a veces la página
  * nueva se abría a media altura. Este efecto corre después del de Next y lo deja siempre en 0.
  *
- * Excepción: los enlaces a una sección (/#novedades) van a esa sección, no arriba.
+ * Excepciones: los enlaces a una sección (/#novedades) van a esa sección, no arriba, y el
+ * cambio de color en la ficha de producto conserva la posición (lib/scroll-intent.ts).
  */
 export function ScrollToTop() {
   const pathname = usePathname();
@@ -21,6 +23,8 @@ export function ScrollToTop() {
   }, []);
 
   useEffect(() => {
+    // Cambio de color en la ficha de producto: se queda donde estaba.
+    if (consumeKeepScroll()) return;
     const { hash } = window.location;
     if (!hash) {
       // "instant": sin la animación del scroll-behavior: smooth de globals.css.

@@ -87,6 +87,11 @@ export type Product = {
   variants: ProductVariant[];
   seo: { title: string | null; description: string | null };
   createdAt: string;
+  /**
+   * Color de la prenda (p. ej. «Negro»). Cada color es un producto propio; los colores de una
+   * misma prenda comparten nombre (Tee 001…) y se enlazan entre sí con getColorSiblings().
+   */
+  color?: string | null;
   /** Colección principal, para la ruta de navegación y «También te puede gustar». */
   category: { handle: string; title: string } | null;
   details: ProductDetails;

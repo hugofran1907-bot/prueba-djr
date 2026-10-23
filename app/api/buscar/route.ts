@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     const products = await getProducts({ query, sortKey: "RELEVANCE" });
     const results = products.slice(0, 4).map((p) => ({
       handle: p.handle,
-      title: p.title,
+      title: p.color ? `${p.title} · ${p.color}` : p.title,
       price: formatPrice(p.priceRange.minVariantPrice),
       image: p.featuredImage?.url ?? null,
     }));

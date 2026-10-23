@@ -82,11 +82,11 @@ export const promoBanner = {
 };
 
 export const heroContent = {
-  eyebrow: `Colección 01 — ${season}`,
+  eyebrow: `DROP 001 — ${season}`,
   title: ["Menos ruido.", "Más presencia."],
   text: "Streetwear de líneas limpias, hecho para moverse por la ciudad sin pedir permiso.",
   valueProp: hero.valueProp,
-  cta: { label: "Comprar la Colección 01", href: "/colecciones/todo" },
+  cta: { label: "Comprar el DROP 001", href: "/colecciones/todo" },
   secondaryCta: { label: "Novedades", href: "/novedades" },
   image: {
     url: "/images/portada/portada-negro-original.webp",
@@ -119,7 +119,7 @@ export const brandContent = {
     { title: "Hecho para durar", text: brandStory.durability },
   ],
   image: {
-    url: "/images/marca/logos.jpg",
-    alt: "Bocetos de los logos de DJR: el monograma, la doble estrella y la firma",
+    url: "/images/marca/logos-djr.jpg",
+    alt: "Logos de DJR: el monograma, la doble estrella y la firma",
   },
 };

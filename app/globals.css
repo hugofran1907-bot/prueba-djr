@@ -398,22 +398,20 @@
   .kinetic-outline svg {
     color: var(--color-navy);
   }
-  /* La foto se ve a través de las letras; si el navegador no lo soporta, texto blanco. */
+  /* El patrón de monogramas DJR se ve a través de las letras; si el navegador no lo soporta, texto blanco. */
   .kinetic-image {
     color: var(--color-navy);
   }
   @supports ((-webkit-background-clip: text) or (background-clip: text)) {
     .kinetic-image {
       color: transparent;
-      /* Velo claro encima de la foto: las prendas negras dejaban letras negras sobre el fondo
-         negro y en móvil la palabra parecía cortada. Así siempre se lee, con la foto de textura. */
-      background-image: linear-gradient(rgb(255 255 255 / 0.45), rgb(255 255 255 / 0.45)), var(--kinetic-image);
-      background-size: 60vw auto;
-      background-repeat: repeat-x;
-      background-position: 50% 30%;
+      background-image: var(--kinetic-image);
+      /* Tamaño ligado a la letra: unas cuatro filas de monogramas por altura de letra. */
+      background-size: auto 1.6em;
+      background-repeat: repeat;
+      background-position: 50% 0%;
       -webkit-background-clip: text;
       background-clip: text;
-      filter: grayscale(1) contrast(1.15) brightness(1.35);
     }
     .kinetic-image svg {
       color: var(--color-navy);

@@ -1,11 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useId, useRef, useState, type MouseEvent, type ReactNode } from "react";
 import { CART_ENABLED, colorSwatches, trustLines } from "@/config/store";
 import { notifyWhenAvailable } from "@/lib/actions";
 import type { Product, ProductOption, ProductVariant } from "@/lib/types";
 import { cn, formatPrice } from "@/lib/utils";
 import { flyToCart } from "@/lib/fly-to-cart";
+import { keepScrollOnce } from "@/lib/scroll-intent";
 import { Star } from "@/components/ui/Star";
 import { useCart } from "@/components/cart/CartContext";
 import { EmailForm } from "@/components/ui/EmailForm";
@@ -118,9 +120,79 @@ function OptionPicker({
   );
 }
 
+/* ───────────── Colores de la prenda ───────────── */
+
+export type ColorLink = { handle: string; color: string };
+
+/** Talla elegida antes de cambiar de color, para que la ficha del otro color la conserve. */
+const PENDING_SIZE_KEY = "djr:talla-al-cambiar-color";
+
+function takePendingSize(title: string): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(PENDING_SIZE_KEY);
+    sessionStorage.removeItem(PENDING_SIZE_KEY);
+    const pending = raw ? (JSON.parse(raw) as { title: string; size: string }) : null;
+    return pending?.title === title ? pending.size : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Cada color es un producto propio (con sus fotos), así que cambiar de color abre la ficha
+ * de ese color: cambian las fotos, se conservan la talla elegida y la posición en la página.
+ */
+function ColorPicker({ colors, current, title, size }: { colors: ColorLink[]; current: string; title: string; size: string | null }) {
+  return (
+    <nav aria-label="Colores" className="mt-8">
+      <p className="eyebrow text-stone">
+        Color<span className="ml-2 tracking-normal normal-case text-navy">· {colors.find((c) => c.handle === current)?.color}</span>
+      </p>
+      <ul className="flex flex-wrap gap-2 pt-4">
+        {colors.map((c) => {
+          const selected = c.handle === current;
+          const hex = colorSwatches[c.color.toLowerCase()];
+          return (
+            <li key={c.handle}>
+              <Link
+                href={`/productos/${c.handle}`}
+                scroll={false}
+                replace
+                aria-current={selected ? "true" : undefined}
+                aria-label={`${title} en ${c.color.toLowerCase()}`}
+                title={c.color}
+                onClick={() => {
+                  if (selected) return;
+                  keepScrollOnce();
+                  try {
+                    if (size) sessionStorage.setItem(PENDING_SIZE_KEY, JSON.stringify({ title, size }));
+                  } catch {}
+                }}
+                className="flex size-11 items-center justify-center rounded-full border border-transparent transition-[border-color,transform] duration-150 hover:border-navy/40 active:scale-[0.96] aria-[current=true]:border-navy"
+              >
+                <span className="size-8 rounded-full border border-navy/20" style={{ backgroundColor: hex }} />
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
+  );
+}
+
 /* ───────────── Componente principal ───────────── */
 
-export function ProductPurchase({ product, children }: { product: Product; children?: ReactNode }) {
+export function ProductPurchase({
+  product,
+  colors = [],
+  children,
+}: {
+  product: Product;
+  /** Los colores de esta prenda (vacío si solo hay uno). */
+  colors?: ColorLink[];
+  children?: ReactNode;
+}) {
   const { addLine, openCart } = useCart();
   const colorOption = product.options.find((o) => COLOR_RE.test(o.name));
   const sizeOption = product.options.find((o) => SIZE_RE.test(o.name));
@@ -131,7 +203,8 @@ export function ProductPurchase({ product, children }: { product: Product; child
     null;
 
   const [color, setColor] = useState<string | null>(firstAvailableColor);
-  const [size, setSize] = useState<string | null>(null);
+  // Al llegar desde otro color de la misma prenda, conserva la talla elegida allí.
+  const [size, setSize] = useState<string | null>(() => takePendingSize(product.title));
   const [notifyOpen, setNotifyOpen] = useState(false);
   /** Momento del último «añadir» (null = sin aviso). Cambia en cada pulsación para reiniciar el aviso. */
   const [addedAt, setAddedAt] = useState<number | null>(null);
@@ -210,7 +283,9 @@ export function ProductPurchase({ product, children }: { product: Product; child
       focusSizes();
       return;
     }
-    const variantTitle = selectedVariant.selectedOptions.map((o) => `${o.name} ${o.value}`).join(" · ");
+    const variantTitle = [product.color, ...selectedVariant.selectedOptions.map((o) => `${o.name} ${o.value}`)]
+      .filter(Boolean)
+      .join(" · ");
     const line = {
       variantId: selectedVariant.id,
       handle: product.handle,
@@ -256,6 +331,8 @@ export function ProductPurchase({ product, children }: { product: Product; child
         />
       )}
 
+      {colors.length > 1 && <ColorPicker colors={colors} current={product.handle} title={product.title} size={size} />}
+
       {lowStock && size && (
         <p className="mt-4 flex items-center gap-2 text-sm text-burgundy" role="status">
           <span aria-hidden="true" className="size-1.5 rounded-full bg-burgundy" />
@@ -296,7 +373,7 @@ export function ProductPurchase({ product, children }: { product: Product; child
             </button>
             <div id={notifyPanelId} hidden={!notifyOpen} data-enter className="mt-6 border border-navy/15 p-5">
               <p className="text-sm text-navy/85">
-                Te escribiremos cuando {product.title.toLowerCase()} {size ? `en talla ${size} ` : ""}esté disponible.
+                Te escribiremos cuando {product.title} {size ? `en talla ${size} ` : ""}esté disponible.
               </p>
               <EmailForm
                 action={notifyWhenAvailable}

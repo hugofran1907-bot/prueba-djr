@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useCart } from "@/components/cart/CartContext";
 import { CartContents } from "@/components/cart/CartContents";
-import { Star } from "@/components/ui/Star";
+import { LogoStar } from "@/components/ui/LogoStar";
 
 function CloseIcon() {
   return (
@@ -47,8 +47,12 @@ export function CartDrawer() {
       <div className="flex h-16 shrink-0 items-center justify-between border-b border-navy/10 px-5 md:h-20 md:px-8">
         <h2 id="cart-drawer-title" className="font-serif text-3xl">
           Carrito <span className="font-sans text-sm text-stone tabular-nums">({count})</span>
-          {/* Sello: la estrella DJR® se estampa cada vez que cambia el carrito (se vuelve a montar con key). */}
-          {count > 0 && <Star key={count} data-stamp className="ml-2 inline-block size-5 align-[0.15em]" />}
+          {/* Sello: la doble estrella del logo DJR® se estampa cada vez que cambia el carrito (se vuelve a montar con key). */}
+          {count > 0 && (
+            <span key={count} data-stamp className="ml-2 inline-block align-[-0.05em]">
+              <LogoStar className="h-[0.8em]" />
+            </span>
+          )}
         </h2>
         <button
           type="button"
