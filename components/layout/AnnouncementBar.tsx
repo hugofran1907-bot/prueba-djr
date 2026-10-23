@@ -3,19 +3,9 @@
 import { useState, useSyncExternalStore } from "react";
 import { announcements } from "@/config/store";
 
-const STORAGE_KEY = "djr-announcement-closed";
 /** Copias de la secuencia en la marquesina, para cubrir pantallas anchas. */
 const MARQUEE_COPIES = 4;
 
-function readClosed() {
-  try {
-    return window.localStorage.getItem(STORAGE_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
-const noopSubscribe = () => () => {};
 const reducedMotionQuery = "(prefers-reduced-motion: reduce)";
 
 function subscribeReducedMotion(cb: () => void) {
@@ -27,9 +17,9 @@ function subscribeReducedMotion(cb: () => void) {
 /**
  * Barra de anuncios en marquesina sobre la cabecera. Textos en config/store.ts.
  * Con prefers-reduced-motion muestra un aviso cada vez, con avance manual.
+ * La X la oculta mientras se navega por la web; al recargar o volver a entrar, vuelve a salir.
  */
 export function AnnouncementBar() {
-  const storedClosed = useSyncExternalStore(noopSubscribe, readClosed, () => false);
   const reducedMotion = useSyncExternalStore(
     subscribeReducedMotion,
     () => window.matchMedia(reducedMotionQuery).matches,
@@ -43,16 +33,9 @@ export function AnnouncementBar() {
   const count = announcements.length;
   const marquee = count > 0 && !reducedMotion;
 
-  if (count === 0 || storedClosed || closedNow) return null;
+  if (count === 0 || closedNow) return null;
 
-  const close = () => {
-    setClosedNow(true);
-    try {
-      window.localStorage.setItem(STORAGE_KEY, "1");
-    } catch {
-      // Sin almacenamiento: se cierra solo durante esta visita.
-    }
-  };
+  const close = () => setClosedNow(true);
 
   const iconBtn = "inline-flex size-9 shrink-0 items-center justify-center text-navy/70 transition-colors hover:text-navy";
 
